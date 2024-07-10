@@ -55,17 +55,25 @@ ruff-run = "ruff check --fix {args:.}"
 watch = "ruff check --watch {args:.}"
 all = ["pyright-run", "ruff-run"]
 
+# Code coverage environment
+
+[tool.hatch.envs.coverage]
+extra-dependencies = ["coverage[toml]", "pytest", "pytest-cov"]
+
+[tool.hatch.envs.coverage.scripts]
+all = "pytest --cov-config=pyproject.toml --cov=src/pythreads --cov=tests"
+clean = "coverage erase"
+
 # Test environment
 
 [[tool.hatch.envs.test.matrix]]
 python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
 [tool.hatch.envs.test]
-extra-dependencies = ["coverage[toml]", "pytest", "pytest-cov"]
+extra-dependencies = ["pytest"]
 
 [tool.hatch.envs.test.scripts]
-all = "pytest --cov-config=pyproject.toml --cov=pkg --cov=tests"
-test = "all --no-cov {args:.}"
+all = "pytest {args:.}"
 
 
 ### Testing ###
@@ -77,7 +85,6 @@ addopts = "-s -v"
 ### Coverage ###
 
 [tool.coverage.run]
-source_pkgs = ["pythreads", "tests"]
 branch = true
 parallel = true
 omit = ["src/pythreads/__about__.py"]
