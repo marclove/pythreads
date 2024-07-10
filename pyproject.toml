@@ -1,0 +1,90 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pythreads"
+dynamic = ["version"]
+description = "A Python wrapper of Meta's Threads API"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = ["threads", "meta"]
+authors = [{ name = "Marc Love", email = "marclove@users.noreply.github.com" }]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = []
+
+[project.urls]
+Documentation = "https://github.com/marclove/pythreads#readme"
+Issues = "https://github.com/marclove/pythreads/issues"
+Source = "https://github.com/marclove/pythreads"
+
+[tool.hatch.version]
+path = "src/pythreads/__about__.py"
+
+
+### Environments ###
+
+[tool.hatch.envs.default]
+python = "3.12"
+dependencies = [
+  "aiohttp==3.9.*",
+  "python-dotenv==1.0.*",
+  "requests==2.32.*",
+  "requests-oauthlib==2.0.*",
+]
+
+# Lint environment
+
+[tool.hatch.envs.lint]
+extra-dependencies = ["pyright>=1.1.371", "ruff"]
+
+[tool.hatch.envs.lint.scripts]
+pyright-run = "pyright {args:.}"
+ruff-run = "ruff check --fix {args:.}"
+watch = "ruff check --watch {args:.}"
+all = ["pyright-run", "ruff-run"]
+
+# Test environment
+
+[[tool.hatch.envs.test.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+[tool.hatch.envs.test]
+extra-dependencies = ["coverage[toml]", "pytest", "pytest-cov"]
+
+[tool.hatch.envs.test.scripts]
+all = "pytest --cov-config=pyproject.toml --cov=pkg --cov=tests"
+test = "all --no-cov {args:.}"
+
+
+### Testing ###
+
+[tool.pytest.ini_options]
+addopts = "-s -v"
+
+
+### Coverage ###
+
+[tool.coverage.run]
+source_pkgs = ["pythreads", "tests"]
+branch = true
+parallel = true
+omit = ["src/pythreads/__about__.py"]
+
+[tool.coverage.paths]
+pythreads = ["src/pythreads", "*/pythreads/src/pythreads"]
+tests = ["tests", "*/pythreads/tests"]
+
+[tool.coverage.report]
+exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
