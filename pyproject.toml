@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024-present Marc Love <copyright@marclove.com>
+#
+# SPDX-License-Identifier: MIT
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -47,7 +51,11 @@ dependencies = [
 # Lint environment
 
 [tool.hatch.envs.lint]
-extra-dependencies = ["pyright>=1.1.371", "ruff"]
+extra-dependencies = [
+  "pyright>=1.1.371",
+  "ruff",
+  "pytest",
+] # pytest needed for linting checks
 
 [tool.hatch.envs.lint.scripts]
 pyright-run = "pyright {args:.}"
@@ -61,10 +69,11 @@ all = ["pyright-run", "ruff-run"]
 extra-dependencies = ["coverage[toml]", "pytest", "pytest-cov"]
 
 [tool.hatch.envs.coverage.scripts]
-all = "pytest --cov-config=pyproject.toml --cov=src/pythreads --cov=tests"
+all = 'pytest -m "not smoke" --cov-config=pyproject.toml --cov=src/pythreads'
+generate = 'coverage html'
 clean = "coverage erase"
 
-# Test environment
+# Test environments
 
 [[tool.hatch.envs.test.matrix]]
 python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
@@ -73,13 +82,23 @@ python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 extra-dependencies = ["pytest"]
 
 [tool.hatch.envs.test.scripts]
-all = "pytest {args:.}"
+all = 'pytest -m "not smoke" {args:.}'
+smoke = 'pytest -m "smoke" {args:.}'
+
+[tool.hatch.envs.smoke-test]
+extra-dependencies = ["pytest"]
+
+[tool.hatch.envs.smoke-test.scripts]
+all = 'pytest -m "smoke" {args:.}'
 
 
 ### Testing ###
 
 [tool.pytest.ini_options]
-addopts = "-s -v"
+addopts = "-s -v --strict-markers"
+markers = [
+  "smoke: makes real requests to the Threads API and requires real credentials",
+]
 
 
 ### Coverage ###
