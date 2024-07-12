@@ -24,9 +24,12 @@ GRAPH_API_BASE_URL = (
 
 load_dotenv()
 
-THREADS_SSL_CERT_FILEPATH = os.getenv("THREADS_SSL_CERT_FILEPATH")
-THREADS_SSL_KEY_FILEPATH = os.getenv("THREADS_SSL_KEY_FILEPATH")
-if not THREADS_SSL_CERT_FILEPATH or not THREADS_SSL_KEY_FILEPATH:
+
+THREADS_SSL_CERT_FILEPATH = os.getenv("THREADS_SSL_CERT_FILEPATH", "")
+THREADS_SSL_KEY_FILEPATH = os.getenv("THREADS_SSL_KEY_FILEPATH", "")
+if not os.getenv("CI") and (
+    THREADS_SSL_CERT_FILEPATH == "" or THREADS_SSL_KEY_FILEPATH == ""
+):
     raise RuntimeError(
         "You must provide both an THREADS_SSL_CERT_FILEPATH and THREADS_SSL_KEY_FILEPATH in your environment for OAuth2 authentication and authorization"
     )
