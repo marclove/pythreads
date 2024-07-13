@@ -173,7 +173,28 @@ session.close()
 
 Better documentation is coming, but for now, you can browse the methods in [api.py](src/pythreads/api.py).
 
-Other than the `publish` method, which provides a high-level interface for creating a new Thread of any type with any kind of attachment, the rest of the methods follow [Meta's API](https://developers.facebook.com/docs/threads) fairly closely.
+Most of the methods follow [Meta's API](https://developers.facebook.com/docs/threads)
+closely, with method names matching API endpoint names, and required/optional arguments
+matching API required/optional parameters.
+
+The `publish` method is one exception. The Threads API requires a
+multi-step process that's different depending on whether and what kind
+of attachment(s) you're uploading. PyThreads simplifies that process
+behind a higher-level, single interface for creating a new Thread of
+any type with any kind of attachment(s). 
+
+```python
+async with API(credentials=credentials) as api:
+    await api.publish("A text-only post")
+
+    # Post with a single piece of media
+    an_image = Attachment(type=MediaType.IMAGE, url="https://mybucket.s3.amazonaws.com/image.png")
+    await api.publish("A post with a single image.", attachments=[an_image])
+
+    # Post with a carousel of multiple media items
+    a_video = Attachment(type=MediaType.VIDEO, url="https://mybucket.s3.amazonaws.com/video.mp4")
+    await api.publish("A post with multiple media items.", attachments=[an_image, a_video])
+```
 
 ## Roadmap
 - [ ] Improve documentation of `API` methods and publish the docs.
