@@ -12,11 +12,14 @@ dynamic = ["version"]
 description = "A Python wrapper of Meta's Threads API"
 readme = "README.md"
 requires-python = ">=3.8"
-license = "MIT"
-keywords = ["threads", "meta"]
-authors = [{ name = "Marc Love", email = "marclove@users.noreply.github.com" }]
+license = { file = "LICENSE.txt" }
+keywords = ["threads", "meta", "sdk"]
+authors = [{ name = "Marc Love", email = "copyright@marclove.com" }]
+maintainers = [{ name = "Marc Love", email = "copyright@marclove.com" }]
 classifiers = [
   "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
@@ -25,13 +28,21 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = []
+dependencies = [
+  "aiohttp==3.9.*",
+  "python-dotenv==1.0.*",
+  "requests==2.32.*",
+  "requests-oauthlib==2.0.*",
+]
 
 [project.urls]
+Homepage = "https://github.com/marclove/pythreads"
 Documentation = "https://github.com/marclove/pythreads#readme"
+Repository = "https://github.com/marclove/pythreads"
 Issues = "https://github.com/marclove/pythreads/issues"
-Source = "https://github.com/marclove/pythreads"
 
 [tool.hatch.version]
 path = "src/pythreads/__about__.py"
@@ -41,12 +52,6 @@ path = "src/pythreads/__about__.py"
 
 [tool.hatch.envs.default]
 python = "3.12"
-dependencies = [
-  "aiohttp==3.9.*",
-  "python-dotenv==1.0.*",
-  "requests==2.32.*",
-  "requests-oauthlib==2.0.*",
-]
 
 # Lint environment
 
