@@ -21,6 +21,7 @@ follows [Semantic Versioning](https://semver.org/).
 - [Authentication & Authorization](#authentication--authorization)
 - [Making Requests](#making-requests)
 - [API Methods](#api-methods)
+- [Roadmap](#roadmap)
 - [License](#license)
 
 ## Installation
@@ -31,7 +32,7 @@ pip install pythreads
 
 ## Environment Variables
 
-You must make the following environment variables available:
+You will need to create an app in the [developer console](https://developers.facebook.com/docs/development/create-an-app/threads-use-case) which has the Threads Use Case enabled and add the the following variables to your environment. The redirect URI needs to be the URL in your application where you call the `complete_authorization` method.
 
 ```
 THREADS_REDIRECT_URI=
@@ -39,11 +40,9 @@ THREADS_APP_ID=
 THREADS_API_SECRET=
 ```
 
-You will need to create an app in the [developer console](https://developers.facebook.com/docs/development/create-an-app/threads-use-case) which has the Threads Use Case enabled and add the the following variables to your environment. The redirect URI needs to be the URL in your application where you call the `complete_authorization` method.
-
 ## Authentication & Authorization
 
-Authenticating with Threads is very simple:
+Authenticating with PyThreads is very simple:
 
 1.  Generate an authorization url and state key. Make the auth_url the
     href of a link or button and **store the state_key** (which is
@@ -59,18 +58,20 @@ Authenticating with Threads is very simple:
     authenticate and authorize your application access to their account.
     Upon authorization, they will be sent to your THREADS_REDIRECT_URI. At your
     THREADS_REDIRECT_URI endpoint, call `complete_authorization` with the full
-    URL of the request made to your server, which will contain an auth code. You
-    must also pass the `state_key`, which was generated in the previous step:
+    URL of the request made to your server (which contains the auth code) and
+    the `state_key`, which was generated in the previous step:
 
     ```python
     credentials = Threads.complete_authorization(requested_url, state_key)
     ```
 
-3.  This automatically exchanges the auth code for a short-lived token and
-    then exchanges the short-lived token for a long-lived token. It returns
-    a `Credentials` object. The `Credentials` object can be serialized and
-    deserialized to/from JSON, making it easy for you to persist it in the
-    user's session or some other data store.
+3.  This method automatically exchanges the auth code for a short-lived token
+    and immediately exchanges the short-lived token for a long-lived token.
+    The method returns `Credentials` object, which contains this long-lived
+    token and details about the user. The `Credentials` object can be
+    serialized and deserialized to/from JSON, making it easy for you to
+    persist it in some data store or store it encrypted in the user's
+    session.
 
     ```python
     json = credentials.to_json()
@@ -99,7 +100,7 @@ Authenticating with Threads is very simple:
     )
     ```
 
-4.  Long-lived tokens last 60 days, and are refreshable, as long as the
+5.  Long-lived tokens last 60 days, and are refreshable, as long as the
     token hasn't expired yet. Implement your own application logic to
     determine when it makes sense to refresh users' long-lived tokens, which
     you can do with:
@@ -108,18 +109,28 @@ Authenticating with Threads is very simple:
     refreshed_credentials = Threads.refresh_long_lived_token(old_credentials)
     ```
 
-    A Credentials object's expiration is always stored in UTC time. It has
-    a convenience method to check how many seconds before its token
-    expires. For instance, a credentials object whose token will expire in
-    two hours will return the following:
+    A `Credentials` object has convenience methods to make it easier for
+    you to determine whether the token is still valid and how much longer
+    it is valid for.
 
     ```python
+    credentials.expired()
+    >>> False
+
     credentials.expires_in()
-    >>> 7200
+    >>> 7200 # seconds
     ```
 
-    This should make it easier to reason about whether the token needs to be
-    refreshed or not.
+    Of course, you can always check the expiration time directly. It is
+    stored in UTC time:
+
+    ```python
+    credentials.expiration
+    >>> datetime(2024, 7, 11, 10, 50, 32, 870181, tzinfo=datetime.timezone.utc)
+    ```
+
+    If you call an API method using expired credentials, a `ThreadsAccessTokenExpired`
+    exception will be raised. 
 
 ## Making Requests
 
@@ -128,7 +139,21 @@ call the Threads API. The `API` object uses an `aiohttp.ClientSession` to make
 async HTTP calls. You may either supply your own session or let the library
 create and manage one itself.
 
-If you want the library to create a session and manage itself:
+If you do not supply your own session, PyThreads will create one and take
+responsibility for closing it. You must use the `API` object as an async
+context manager if you want it to manage a session for you:
+
+```python
+# Retrieve the user's credentials from whereever you're storing them:
+credentials = Credentials.from_json(stored_json)
+
+async with API(credentials=credentials) as api:
+    await api.threads()
+```
+
+If you want to create and manage your own session (e.g. you're already
+using `aiohttp` elsewhere in your application and want to use a single
+session for all requests):
 
 ```python
 # Create an `aiohttp.ClientSession` at some point:
@@ -144,23 +169,17 @@ threads = await api.threads()
 session.close()
 ```
 
-If you do not supply your own session, PyThreads will create one and take
-responsibility for closing it. You must use the `API` object as an async
-context manager if you want it to manage a session for you:
-
-```python
-# Retrieve the user's credentials from whereever you're storing them:
-credentials = Credentials.from_json(stored_json)
-
-async with API(credentials=credentials) as api:
-    await api.threads()
-```
-
 ## API Methods
 
 Better documentation is coming, but for now, you can browse the methods in [api.py](src/pythreads/api.py).
 
 Other than the `publish` method, which provides a high-level interface for creating a new Thread of any type with any kind of attachment, the rest of the methods follow [Meta's API](https://developers.facebook.com/docs/threads) fairly closely.
+
+## Roadmap
+- [ ] Improve documentation of `API` methods and publish the docs.
+- [ ] Type the return values of the `API` methods. They currently all return `Any`.
+- [ ] Add integration with S3 and R2 storage. The Threads API doesn't take media uploads directly. You have to upload files to a publicly accessible URL and pass the URL in the API response. This integration would handle the upload to cloud storage and passing of the URL to the Threads API for you.
+- [ ] Explore adding JSON fixtures of expected responses to specs.
 
 ## License
 
