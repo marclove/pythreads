@@ -47,6 +47,8 @@ Issues = "https://github.com/marclove/pythreads/issues"
 [tool.hatch.version]
 path = "src/pythreads/__about__.py"
 
+[tool.hatch.build.targets.sdist]
+exclude = [".github/*", ".env.template"]
 
 ### Environments ###
 
