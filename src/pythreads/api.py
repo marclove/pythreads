@@ -280,7 +280,7 @@ class API:
         session: aiohttp.ClientSession,
         attachment: Optional[Attachment] = None,
         text: Optional[str] = None,
-        reply_control: Optional[ReplyControl] = None,
+        reply_control: ReplyControl = ReplyControl.EVERYONE,
         reply_to_id: Optional[str] = None,
         children: Optional[List[str]] = None,
         is_carousel_item: bool = False,
@@ -314,10 +314,14 @@ class API:
         params: Dict[str, Union[str, bool, List[str], None]] = {
             PARAMS__TEXT: text,
             PARAMS__MEDIA_TYPE: media_type.value,
-            PARAMS__IS_CAROUSEL_ITEM: is_carousel_item,
             PARAMS__REPLY_CONTROL: reply_control and reply_control.value,
-            PARAMS__REPLY_TO_ID: reply_to_id,
         }
+
+        if reply_to_id:
+            params[PARAMS__REPLY_TO_ID] = reply_to_id
+
+        if is_carousel_item:
+            params[PARAMS__IS_CAROUSEL_ITEM] = is_carousel_item
 
         # Set media_type-specific parameters
         if media_type == MediaType.CAROUSEL:
@@ -353,7 +357,7 @@ class API:
         self,
         attachment: Optional[Attachment] = None,
         text: Optional[str] = None,
-        reply_control: Optional[ReplyControl] = None,
+        reply_control: ReplyControl = ReplyControl.EVERYONE,
         reply_to_id: Optional[str] = None,
     ) -> Dict[str, str]:
         """
@@ -371,7 +375,7 @@ class API:
                 reply_control=reply_control,
                 reply_to_id=reply_to_id,
             )
-
+            print(container_response)
             if "id" not in container_response:
                 raise RuntimeError(
                     "Expected 'id' key in JSON response from Threads API"
@@ -385,7 +389,7 @@ class API:
         self,
         attachments: List[Attachment],
         text: Optional[str] = None,
-        reply_control: Optional[ReplyControl] = None,
+        reply_control: ReplyControl = ReplyControl.EVERYONE,
         reply_to_id: Optional[str] = None,
     ) -> Dict[str, str]:
         """
@@ -409,6 +413,7 @@ class API:
                         self._create_container(
                             session=session,
                             attachment=attachment,
+                            reply_control=reply_control,
                             is_carousel_item=True,
                         )
                     )
@@ -438,7 +443,7 @@ class API:
         self,
         text: Optional[str] = None,
         attachments: List[Attachment] = [],
-        reply_control: Optional[ReplyControl] = None,
+        reply_control: ReplyControl = ReplyControl.EVERYONE,
         reply_to_id: Optional[str] = None,
     ):
         """A unified interface for uploading and publishing threads of any kind.
