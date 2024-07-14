@@ -55,6 +55,12 @@ exclude = [".github/*", ".env.template"]
 [tool.hatch.envs.default]
 python = "3.12"
 
+[tool.hatch.envs.docs]
+extra-dependencies = ["sphinx", "furo", "myst-parser"]
+
+[tool.hatch.envs.docs.scripts]
+build = "cd docs && make html"
+
 # Lint environment
 
 [tool.hatch.envs.lint]
