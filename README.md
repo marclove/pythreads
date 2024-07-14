@@ -2,7 +2,7 @@
 
 [![PyPI - Version](https://img.shields.io/pypi/v/pythreads.svg)](https://pypi.org/project/pythreads)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pythreads.svg)](https://pypi.org/project/pythreads)
-![Code Coverage](https://img.shields.io/badge/coverage-94%25-brightgreen)
+![Code Coverage](https://img.shields.io/badge/coverage-93%25-brightgreen)
 
 PyThreads is a Python wrapper for Meta's Threads API. It is still in beta, 
 but is well-tested and covers all the published endpoints documented by Meta.
@@ -171,30 +171,98 @@ session.close()
 
 ## API Methods
 
-Better documentation is coming, but for now, you can browse the methods in [api.py](src/pythreads/api.py).
+Better documentation is coming, but for now, you can browse the methods
+in [api.py](src/pythreads/api.py).
 
 Most of the methods follow [Meta's API](https://developers.facebook.com/docs/threads)
-closely, with method names matching API endpoint names, and required/optional arguments
-matching API required/optional parameters.
+closely, with required/optional arguments matching API required/optional
+parameters.
 
-The `publish` method is one exception. The Threads API requires a
-multi-step process that's different depending on whether and what kind
-of attachment(s) you're uploading. PyThreads simplifies that process
-behind a higher-level, single interface for creating a new Thread of
-any type with any kind of attachment(s). 
+### Making a text-only post
+Making a text-only post is a two-step process. Create a container and then
+publish it:
 
 ```python
-async with API(credentials=credentials) as api:
-    await api.publish("A text-only post")
-
-    # Post with a single piece of media
-    an_image = Attachment(type=MediaType.IMAGE, url="https://mybucket.s3.amazonaws.com/image.png")
-    await api.publish("A post with a single image.", attachments=[an_image])
-
-    # Post with a carousel of multiple media items
-    a_video = Attachment(type=MediaType.VIDEO, url="https://mybucket.s3.amazonaws.com/video.mp4")
-    await api.publish("A post with multiple media items.", attachments=[an_image, a_video])
+async with API(credentials) as api:
+    container_id = await api.create_container("A text-only post")
+    result_id = await api.publish_container(container_id)
+    # container_id == result_id
 ```
+
+### Making a post with a single media file
+Making a post with a single media file is also a two-step process. Create a
+container with the media file and any post text and then publish it:
+
+```python
+async with API(credentials) as api:
+    # Create a video container. You must put media resources at a publicly-accessible URL where Threads can download it.
+    a_video = Media(type=MediaType.VIDEO, url="https://mybucket.s3.amazonaws.com/video.mp4")
+    container_id = await api.create_container(media=a_video)
+
+    # Video containers need to complete processing before you can publish them
+    await asyncio.sleep(15)
+
+    # Check the status to see if it's finished processing
+    status = await api.container_status(container_id)
+    # >>> ContainerStatus(id='14781862679302648', status=<PublishingStatus.FINISHED: 'FINISHED'>, error=None)
+
+    # Publish the video container
+    result_id = await api.publish_container(container_id)
+    # container_id == result_id
+```
+
+### Making a carousel post
+Making a post with a media carousel is a three-step process. Create a container
+for each media file in the carousel, then create a container for the carousel
+(attaching the media containers as children), and publish the carousel container:
+
+```python
+async with API(self.credentials) as api:
+    # Create an image container
+    an_image = Media(type=MediaType.IMAGE, url="https://mybucket.s3.amazonaws.com/python.png")
+    image_id = await api.create_container(media=an_image, is_carousel_item=True)
+
+    # Create a video container
+    a_video = Media(type=MediaType.VIDEO, url="https://mybucket.s3.amazonaws.com/video.mp4")
+    video_id = await api.create_container(media=a_video, is_carousel_item=True)
+
+    # Video containers need to complete processing before you can publish them
+    await asyncio.sleep(15)
+
+    # Check the status to see if the containers are finished processing
+    status_1 = await api.container_status(image_id)
+    status_2 = await api.container_status(video_id)
+    # >>> ContainerStatus(id='14781862679302648', status=<PublishingStatus.FINISHED: 'FINISHED'>, error=None)
+    # >>> ContainerStatus(id='14823646267930264', status=<PublishingStatus.FINISHED: 'FINISHED'>, error=None)
+
+    # Create the carousel container, which wraps the media containers as children
+    carousel_id = await api.create_carousel_container(containers=[status_1, status_2], text="Here's a carousel")
+
+    await asyncio.sleep(15)
+
+    # Check the carousel container status
+    carousel_status = await api.container_status(carousel_id)
+    # >>> ContainerStatus(id='15766826793021848', status=<PublishingStatus.FINISHED: 'FINISHED'>, error=None)
+
+    # Publish the carousel container
+    result_id = await api.publish_container(carousel_id)
+    # carousel_id == result_id
+```
+
+A few key things to point out above:
+
+1. Creating media containers requires you to put the image or video at a
+publicly-accessible URL. Meta retrieves the media file from that URL.
+
+1. When creating a media container with a video, Threads requires you to
+wait for the video to be processed before you can either publish them or
+attach them to a carousel container. This can take seconds or minutes.
+
+You are **strongly encouraged** to read Meta's documentation regarding the posting
+process:
+
+- [Post to Threads](https://developers.facebook.com/docs/threads/posts)
+- [Understanding Container Status](https://developers.facebook.com/docs/threads/troubleshooting#publishing-does-not-return-a-media-id)
 
 ## Roadmap
 - [ ] Improve documentation of `API` methods and publish the docs.

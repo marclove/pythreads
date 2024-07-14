@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-import asyncio
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+from json import JSONEncoder
 from typing import Any, Dict, List, Literal, Optional, Union
 
 import aiohttp
@@ -113,6 +113,12 @@ PARAMS__VIDEO_URL = "video_url"
 class ThreadsInvalidParameter(ValueError): ...
 
 
+class ThreadsResponseError(Exception):
+    def __init__(self, response: dict) -> None:
+        super().__init__(JSONEncoder().encode(response))
+        self.response = response
+
+
 class MediaType(str, Enum):
     CAROUSEL = MEDIA_TYPE__CAROUSEL
     IMAGE = MEDIA_TYPE__IMAGE
@@ -127,9 +133,37 @@ class ReplyControl(str, Enum):
 
 
 @dataclass
-class Attachment:
+class Media:
     type: MediaType
     url: str
+
+
+class PublishingStatus(str, Enum):
+    EXPIRED = "EXPIRED"
+    ERROR = "ERROR"
+    FINISHED = "FINISHED"
+    IN_PROGRESS = "IN_PROGRESS"
+    PUBLISHED = "PUBLISHED"
+
+
+class PublishingError(str, Enum):
+    FAILED_DOWNLOADING_VIDEO = "FAILED_DOWNLOADING_VIDEO"
+    FAILED_PROCESSING_AUDIO = "FAILED_PROCESSING_AUDIO"
+    FAILED_PROCESSING_VIDEO = "FAILED_PROCESSING_VIDEO"
+    INVALID_ASPEC_RATIO = "INVALID_ASPEC_RATIO"
+    INVALID_BIT_RATE = "INVALID_BIT_RATE"
+    INVALID_DURATION = "INVALID_DURATION"
+    INVALID_FRAME_RATE = "INVALID_FRAME_RATE"
+    INVALID_AUDIO_CHANNELS = "INVALID_AUDIO_CHANNELS"
+    INVALID_AUDIO_CHANNEL_LAYOUT = "INVALID_AUDIO_CHANNEL_LAYOUT"
+    UNKNOWN = "UNKNOWN"
+
+
+@dataclass
+class ContainerStatus:
+    id: str
+    status: PublishingStatus
+    error: Optional[PublishingError] = None
 
 
 class API:
@@ -275,47 +309,55 @@ class API:
 
         return await self._get(url)
 
-    async def _create_container(
+    async def create_container(
         self,
-        session: aiohttp.ClientSession,
-        attachment: Optional[Attachment] = None,
         text: Optional[str] = None,
+        media: Optional[Media] = None,
         reply_control: ReplyControl = ReplyControl.EVERYONE,
         reply_to_id: Optional[str] = None,
-        children: Optional[List[str]] = None,
         is_carousel_item: bool = False,
-    ) -> Dict[str, str]:
+    ) -> str:
         """Creates a media container.
 
+        While `text` and `media` are both optional, you must provide at least
+        one or the other.
+
         Args:
-            access_token: a valid access token
-            attachment: [optional] an Attachment object, containing type and publicly-accessible URL for the media
-            text: [optional] for carousel posts, text should be added to the parent container, not the child media containers
-            reply_control: [optional] who should be allowed to reply to this container, defaults to everyone
-            reply_to_id: [optional] the id of the post this container should be in reply to
-            children: [optional] when creating a carousel media container, an array of the previously-created child media container ids
-            is_carousel_item: True when creating media containers that will be a carousel's child
+            text: [optional] The thread's text
+            media: [optional] The `Media` object
+            reply_control: [optional] The `ReplyControl` policy to apply to the
+                thread. Defaults to ReplyControl.EVERYONE.
+            reply_to_id: [optional] The id of an existing thread to make this
+                thread in reply to.
+            is_carousel_item: A boolean indicating whether this is a media
+                container that will be added to a carousel container
+
+        Returns:
+            The id of the published container
+            https://developers.facebook.com/docs/threads/posts#step-2--publish-a-threads-media-container
+            https://developers.facebook.com/docs/threads/posts#step-3--publish-the-carousel-container
+
+        Raises:
+            OAuth2Error: If there was an issue with the OAuth2 authentication
+            ThreadsAccessTokenExpired: If the user's token has expired
+            ThreadsAuthenticationError: If we receive an unexpected OAuth-related response from Threads
+            ThreadsResponseError: If we receive an unexpected response from Threads
+            RuntimeError: If the session is missing
         """
+
+        if self.session is None:
+            raise RuntimeError("an API instance must have a session to handle requests")
 
         access_token = self._access_token()
 
-        # Set the media type
-        media_type = MediaType.TEXT
-        if attachment:
-            media_type = attachment.type
-        if children and len(children) > 0:
-            media_type = MediaType.CAROUSEL
-
-        # There has to at least be a text value or an attachment
-        if media_type is MediaType.TEXT and text is None:
-            raise ValueError("you must provide either `text` or an `attachment`")
-
         # Construct parameters
         params: Dict[str, Union[str, bool, List[str], None]] = {
-            PARAMS__TEXT: text,
-            PARAMS__MEDIA_TYPE: media_type.value,
-            PARAMS__REPLY_CONTROL: reply_control and reply_control.value,
+            PARAMS__REPLY_CONTROL: reply_control.value,
         }
+
+        if text:
+            params[PARAMS__TEXT] = text
+            params[PARAMS__MEDIA_TYPE] = MediaType.TEXT.value
 
         if reply_to_id:
             params[PARAMS__REPLY_TO_ID] = reply_to_id
@@ -324,24 +366,151 @@ class API:
             params[PARAMS__IS_CAROUSEL_ITEM] = is_carousel_item
 
         # Set media_type-specific parameters
-        if media_type == MediaType.CAROUSEL:
-            params[PARAMS__CHILDREN] = children
-        elif media_type == MediaType.VIDEO:
-            params[PARAMS__VIDEO_URL] = attachment and attachment.url
-        elif media_type == MediaType.IMAGE:
-            params[PARAMS__IMAGE_URL] = attachment and attachment.url
+        if media and media.type == MediaType.VIDEO:
+            params[PARAMS__MEDIA_TYPE] = media.type.value
+            params[PARAMS__VIDEO_URL] = media and media.url
+        elif media and media.type == MediaType.IMAGE:
+            params[PARAMS__MEDIA_TYPE] = media.type.value
+            params[PARAMS__IMAGE_URL] = media and media.url
 
         # Construct URL
         user_id = self.credentials.user_id
         url = Threads.build_graph_api_url(f"{user_id}/threads", params, access_token)
 
         # Make the request and return the result
-        async with session.post(url) as resp:
-            return await resp.json()
+        async with self.session.post(url) as resp:
+            response = await resp.json()
+            if "id" not in response:
+                raise ThreadsResponseError(response)
+            return response["id"]
 
-    async def _publish(
-        self, session: aiohttp.ClientSession, container_id: str
-    ) -> Dict[str, str]:
+    async def create_carousel_container(
+        self,
+        containers: List[ContainerStatus],
+        text: Optional[str] = None,
+        reply_control: ReplyControl = ReplyControl.EVERYONE,
+        reply_to_id: Optional[str] = None,
+    ) -> str:
+        """Creates a carousel container.
+
+        Args:
+            containers: A list of previously-created media containers that are
+                to make up the carousel. You may provide between 2-10 media containers.
+            text: [optional] The thread's text
+            reply_control: [optional] The `ReplyControl` policy to apply to the
+                thread. Defaults to "everyone".
+            reply_to_id: [optional] The id of an existing thread to make this
+                thread in reply to.
+
+        Returns:
+            The id of the published container
+            https://developers.facebook.com/docs/threads/posts#step-2--publish-a-threads-media-container
+            https://developers.facebook.com/docs/threads/posts#step-3--publish-the-carousel-container
+
+        Raises:
+            OAuth2Error: If there was an issue with the OAuth2 authentication
+            ThreadsAccessTokenExpired: If the user's token has expired
+            ThreadsAuthenticationError: If we receive an unexpected OAuth-related response from Threads
+            ThreadsResponseError: If we receive an unexpected response from Threads
+            ThreadsInvalidParameter: If you provide anything but 2-10 containers that are all in a state of "FINISHED".
+            RuntimeError: If the session is missing
+        """
+
+        if self.session is None:
+            raise RuntimeError("an API instance must have a session to handle requests")
+
+        access_token = self._access_token()
+
+        num_media = len(containers)
+        if num_media < 2 or num_media > 10:
+            raise ThreadsInvalidParameter("a carousel post requires 2-10 media items")
+
+        if any([item.status != PublishingStatus.FINISHED for item in containers]):
+            raise ThreadsInvalidParameter(
+                "all published_media must have a status of `FINISHED` before adding them to a carousel container"
+            )
+
+        child_ids = [item.id for item in containers]
+        children = ",".join(child_ids)
+
+        # Construct parameters
+        params: Dict[str, Union[str, bool, List[str], None]] = {
+            PARAMS__MEDIA_TYPE: MediaType.CAROUSEL.value,
+            PARAMS__CHILDREN: children,
+            PARAMS__REPLY_CONTROL: reply_control.value,
+        }
+
+        if text:
+            params[PARAMS__TEXT] = text
+
+        if reply_to_id:
+            params[PARAMS__REPLY_TO_ID] = reply_to_id
+
+        # Construct URL
+        user_id = self.credentials.user_id
+        url = Threads.build_graph_api_url(f"{user_id}/threads", params, access_token)
+
+        # Make the request and return the result
+        async with self.session.post(url) as resp:
+            response = await resp.json()
+            if "id" not in response:
+                raise ThreadsResponseError(response)
+            return response["id"]
+
+    async def container_status(self, media_id: str) -> ContainerStatus:
+        access_token = self._access_token()
+
+        url = Threads.build_graph_api_url(
+            f"{media_id}",
+            {
+                PARAMS__FIELDS: ",".join(
+                    [
+                        FIELD__ID,
+                        FIELD__STATUS,
+                        FIELD__ERROR_MESSAGE,
+                    ]
+                )
+            },
+            access_token,
+        )
+
+        result: dict[Any, Any] = await self._get(url)
+
+        status_str = result.get("status", PublishingStatus.ERROR)
+        status = PublishingStatus[status_str]
+
+        error = None
+        error_str = result.get("error_message", None)
+        if error_str and error_str != "":
+            error = PublishingError[error_str]
+
+        media = ContainerStatus(id=result["id"], status=status, error=error)
+
+        return media
+
+    async def publish_container(self, container_id: str) -> Dict[Any, Any]:
+        """Publish a container that has already been created.
+
+        Args:
+            container_id: The id of the container to publish. ids are returned
+                from `create_container` and `create_carousel_container`
+
+        Returns:
+            The id of the published container
+            https://developers.facebook.com/docs/threads/posts#step-2--publish-a-threads-media-container
+            https://developers.facebook.com/docs/threads/posts#step-3--publish-the-carousel-container
+
+        Raises:
+            OAuth2Error: If there was an issue with the OAuth2 authentication
+            ThreadsAccessTokenExpired: If the user's token has expired
+            ThreadsAuthenticationError: If we receive an unexpected OAuth-related response from Threads
+            ThreadsResponseError: If we receive an unexpected response from Threads
+            RuntimeError: If the session is missing
+        """
+
+        if self.session is None:
+            raise RuntimeError("an API instance must have a session to handle requests")
+
         access_token = self._access_token()
 
         user_id = self.credentials.user_id
@@ -350,155 +519,11 @@ class API:
             {"creation_id": container_id},
             access_token,
         )
-        async with session.post(url) as response:
-            return await response.json()
-
-    async def _post_non_carousel(
-        self,
-        attachment: Optional[Attachment] = None,
-        text: Optional[str] = None,
-        reply_control: ReplyControl = ReplyControl.EVERYONE,
-        reply_to_id: Optional[str] = None,
-    ) -> Dict[str, str]:
-        """
-        Two steps:
-        1. Create a single media container (with text and/or media)
-        2. Publish the media container
-        """
-
-        # Create media container
-        async with aiohttp.ClientSession() as session:
-            container_response = await self._create_container(
-                session=session,
-                attachment=attachment,
-                text=text,
-                reply_control=reply_control,
-                reply_to_id=reply_to_id,
-            )
-            print(container_response)
-            if "id" not in container_response:
-                raise RuntimeError(
-                    "Expected 'id' key in JSON response from Threads API"
-                )
-
-            id = container_response["id"]
-
-            return await self._publish(session, id)
-
-    async def _post_carousel(
-        self,
-        attachments: List[Attachment],
-        text: Optional[str] = None,
-        reply_control: ReplyControl = ReplyControl.EVERYONE,
-        reply_to_id: Optional[str] = None,
-    ) -> Dict[str, str]:
-        """
-        Three steps:
-        1. Create media containers for each attachment.
-        2. Create a carousel container with the containers from step 1 as children
-        3. Publish the carousel container
-        """
-
-        if len(attachments) <= 1:
-            raise ValueError(
-                f"You are only posting {len(attachments)} attachments, so you do not need to post a carousel."
-            )
-
-        async with aiohttp.ClientSession() as session:
-            # Create media containers for each attachment
-            reqs = []
-            for attachment in attachments:
-                reqs.append(
-                    asyncio.ensure_future(
-                        self._create_container(
-                            session=session,
-                            attachment=attachment,
-                            reply_control=reply_control,
-                            is_carousel_item=True,
-                        )
-                    )
-                )
-            responses = await asyncio.gather(*reqs)
-            container_ids: list[str] = list(map(lambda resp: resp["id"], responses))
-
-            # Create a parent container for all the media containers we just created
-            parent_container_response = await self._create_container(
-                session=session,
-                text=text,
-                reply_control=reply_control,
-                reply_to_id=reply_to_id,
-                children=container_ids,
-            )
-
-            if "id" not in parent_container_response:
-                raise RuntimeError(
-                    "Expected 'id' key in JSON response from Threads API"
-                )
-
-            id = parent_container_response["id"]
-
-            return await self._publish(session, id)
-
-    async def publish(
-        self,
-        text: Optional[str] = None,
-        attachments: List[Attachment] = [],
-        reply_control: ReplyControl = ReplyControl.EVERYONE,
-        reply_to_id: Optional[str] = None,
-    ):
-        """A unified interface for uploading and publishing threads of any kind.
-
-        Lets you upload and publish:
-        - A text only thread
-        - An image thread, with or without text
-        - A video thread, with or without text
-        - A carousel thread of images and/or videos, with or without text
-
-        You must provide at least text or an attachment.
-
-        Args:
-            text: [optional] The thread's text
-            attachments: [optional] The `Attachment`(s) to include in the thread
-            reply_control: [optional] The `ReplyControl` policy to apply to the thread. Defaults to "everyone".
-            reply_to_id: [optional] The id of an existing thread to make this thread in reply to.
-
-        Returns:
-            The JSON response of the `threads_publish` endpoint, which is
-            currently simply the published thread's ID: `{ "id": "1234567" }`
-            https://developers.facebook.com/docs/threads/posts#step-2--publish-a-threads-media-container
-            https://developers.facebook.com/docs/threads/posts#step-3--publish-the-carousel-container
-
-        Raises:
-            OAuth2Error: If there was an issue with the OAuth2 authentication
-            ThreadsAccessTokenExpired: If the user's token has expired
-            ThreadsAuthenticationError: If we receive an unexpected OAuth-related response from Threads
-            ValueError: If you did not provide either `text` or at least one `attachment`
-            RuntimeError: If we receive an unexpected upload-related response from Threads
-        """
-        attachments_count = 0
-        if attachments:
-            attachments_count = len(attachments)
-
-        if attachments_count == 0:
-            return await self._post_non_carousel(
-                text=text,
-                reply_control=reply_control,
-                reply_to_id=reply_to_id,
-            )
-        elif attachments_count == 1:
-            return await self._post_non_carousel(
-                attachment=attachments[0],
-                text=text,
-                reply_control=reply_control,
-                reply_to_id=reply_to_id,
-            )
-        else:
-            return await self._post_carousel(
-                attachments=attachments,
-                text=text,
-                reply_control=reply_control,
-                reply_to_id=reply_to_id,
-            )
+        async with self.session.post(url) as resp:
+            response = await resp.json()
+            if "id" not in response:
+                raise ThreadsResponseError(response)
+            return response["id"]
 
     async def container(self, container_id: str):
         access_token = self._access_token()

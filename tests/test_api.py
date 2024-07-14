@@ -11,8 +11,11 @@ import aiohttp
 
 from pythreads.api import (
     API,
-    Attachment,
+    ContainerStatus,
+    Media,
     MediaType,
+    PublishingError,
+    PublishingStatus,
     ReplyControl,
     ThreadsInvalidParameter,
 )
@@ -314,25 +317,21 @@ class APITest(unittest.IsolatedAsyncioTestCase):
 
     @patch("aiohttp.ClientSession.post")
     @patch("pythreads.api.Threads.build_graph_api_url")
-    async def test_publish_text_only_thread(self, mock_build_graph_api_url, mock_post):
+    async def test_create_text_only_container(
+        self, mock_build_graph_api_url, mock_post
+    ):
+        # Mock out responses
         mock_build_graph_api_url.return_value = "https://some-uri.com"
-
         upload_response = {"id": "1"}
-        publish_response = {"id": "1"}
-
-        mock_response_1 = MagicMock()
-        mock_response_1.json = AsyncMock(return_value=upload_response)
-
-        mock_response_2 = MagicMock()
-        mock_response_2.json = AsyncMock(return_value=publish_response)
-
+        mock_response = MagicMock()
+        mock_response.json = AsyncMock(return_value=upload_response)
         mock_post.side_effect = [
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_1)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_2)),
+            MagicMock(__aenter__=AsyncMock(return_value=mock_response)),
         ]
 
-        actual = await self.api.publish("Some text")
+        actual = await self.api.create_container("Some text")
 
+        # Assertions
         mock_build_graph_api_url.assert_has_calls(
             [
                 call(
@@ -344,45 +343,32 @@ class APITest(unittest.IsolatedAsyncioTestCase):
                     },
                     "someaccesstoken",
                 ),
-                call(
-                    f"{self.credentials.user_id}/threads_publish",
-                    {"creation_id": "1"},
-                    "someaccesstoken",
-                ),
             ]
         )
 
-        mock_post.assert_has_calls(
-            [call("https://some-uri.com"), call("https://some-uri.com")]
-        )
+        mock_post.assert_has_calls([call("https://some-uri.com")])
 
-        self.assertEqual(actual, publish_response)
+        self.assertEqual(actual, "1")
 
     @patch("aiohttp.ClientSession.post")
     @patch("pythreads.api.Threads.build_graph_api_url")
-    async def test_publish_text_only_with_options_thread(
+    async def test_create_text_only_with_options_container(
         self, mock_build_graph_api_url, mock_post
     ):
+        # Mock out responses
         mock_build_graph_api_url.return_value = "https://some-uri.com"
-
         upload_response = {"id": "1"}
-        publish_response = {"id": "1"}
-
-        mock_response_1 = MagicMock()
-        mock_response_1.json = AsyncMock(return_value=upload_response)
-
-        mock_response_2 = MagicMock()
-        mock_response_2.json = AsyncMock(return_value=publish_response)
-
+        mock_response = MagicMock()
+        mock_response.json = AsyncMock(return_value=upload_response)
         mock_post.side_effect = [
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_1)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_2)),
+            MagicMock(__aenter__=AsyncMock(return_value=mock_response)),
         ]
 
-        actual = await self.api.publish(
+        actual = await self.api.create_container(
             "Some text", reply_control=ReplyControl.MENTIONED_ONLY, reply_to_id="999"
         )
 
+        # Assertions
         mock_build_graph_api_url.assert_has_calls(
             [
                 call(
@@ -395,140 +381,105 @@ class APITest(unittest.IsolatedAsyncioTestCase):
                     },
                     "someaccesstoken",
                 ),
-                call(
-                    f"{self.credentials.user_id}/threads_publish",
-                    {"creation_id": "1"},
-                    "someaccesstoken",
-                ),
             ]
         )
 
-        mock_post.assert_has_calls(
-            [call("https://some-uri.com"), call("https://some-uri.com")]
-        )
+        mock_post.assert_has_calls([call("https://some-uri.com")])
 
-        self.assertEqual(actual, publish_response)
+        self.assertEqual(actual, "1")
 
     @patch("aiohttp.ClientSession.post")
     @patch("pythreads.api.Threads.build_graph_api_url")
-    async def test_publish_image_only_thread(self, mock_build_graph_api_url, mock_post):
+    async def test_create_image_only_container(
+        self, mock_build_graph_api_url, mock_post
+    ):
+        # Mock out responses
         mock_build_graph_api_url.return_value = "https://some-uri.com"
-
         upload_response = {"id": "1"}
-        publish_response = {"id": "1"}
-
-        mock_response_1 = MagicMock()
-        mock_response_1.json = AsyncMock(return_value=upload_response)
-
-        mock_response_2 = MagicMock()
-        mock_response_2.json = AsyncMock(return_value=publish_response)
-
+        mock_response = MagicMock()
+        mock_response.json = AsyncMock(return_value=upload_response)
         mock_post.side_effect = [
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_1)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_2)),
+            MagicMock(__aenter__=AsyncMock(return_value=mock_response)),
         ]
 
-        attachment = Attachment(MediaType.IMAGE, "https://some-image-uri.com")
-        actual = await self.api.publish(attachments=[attachment])
+        media = Media(MediaType.IMAGE, "https://some-image-uri.com")
+        actual = await self.api.create_container(media=media)
 
+        # Assertions
         mock_build_graph_api_url.assert_has_calls(
             [
                 call(
                     f"{self.credentials.user_id}/threads",
                     {
-                        "text": None,
                         "media_type": "IMAGE",
                         "reply_control": "everyone",
                         "image_url": "https://some-image-uri.com",
                     },
                     "someaccesstoken",
                 ),
-                call(
-                    f"{self.credentials.user_id}/threads_publish",
-                    {"creation_id": "1"},
-                    "someaccesstoken",
-                ),
             ]
         )
 
-        mock_post.assert_has_calls(
-            [call("https://some-uri.com"), call("https://some-uri.com")]
-        )
+        mock_post.assert_has_calls([call("https://some-uri.com")])
 
-        self.assertEqual(actual, publish_response)
+        self.assertEqual(actual, "1")
 
     @patch("aiohttp.ClientSession.post")
     @patch("pythreads.api.Threads.build_graph_api_url")
-    async def test_publish_video_only_thread(self, mock_build_graph_api_url, mock_post):
+    async def test_create_video_only_container(
+        self, mock_build_graph_api_url, mock_post
+    ):
+        # Mock out responses
         mock_build_graph_api_url.return_value = "https://some-uri.com"
-
         upload_response = {"id": "1"}
-        publish_response = {"id": "1"}
-
-        mock_response_1 = MagicMock()
-        mock_response_1.json = AsyncMock(return_value=upload_response)
-
-        mock_response_2 = MagicMock()
-        mock_response_2.json = AsyncMock(return_value=publish_response)
-
+        mock_response = MagicMock()
+        mock_response.json = AsyncMock(return_value=upload_response)
         mock_post.side_effect = [
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_1)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_2)),
+            MagicMock(__aenter__=AsyncMock(return_value=mock_response)),
         ]
 
-        attachment = Attachment(MediaType.VIDEO, "https://some-video-uri.com")
-        actual = await self.api.publish(attachments=[attachment])
+        media = Media(MediaType.VIDEO, "https://some-image-uri.com")
+        actual = await self.api.create_container(media=media)
 
+        # Assertions
         mock_build_graph_api_url.assert_has_calls(
             [
                 call(
                     f"{self.credentials.user_id}/threads",
                     {
-                        "text": None,
                         "media_type": "VIDEO",
                         "reply_control": "everyone",
-                        "video_url": "https://some-video-uri.com",
+                        "video_url": "https://some-image-uri.com",
                     },
-                    "someaccesstoken",
-                ),
-                call(
-                    f"{self.credentials.user_id}/threads_publish",
-                    {"creation_id": "1"},
                     "someaccesstoken",
                 ),
             ]
         )
 
-        mock_post.assert_has_calls(
-            [call("https://some-uri.com"), call("https://some-uri.com")]
-        )
+        mock_post.assert_has_calls([call("https://some-uri.com")])
 
-        self.assertEqual(actual, publish_response)
+        self.assertEqual(actual, "1")
 
     @patch("aiohttp.ClientSession.post")
     @patch("pythreads.api.Threads.build_graph_api_url")
-    async def test_publish_image_and_text_thread(
+    async def test_create_image_and_text_container(
         self, mock_build_graph_api_url, mock_post
     ):
+        # Mock out responses
         mock_build_graph_api_url.return_value = "https://some-uri.com"
-
         upload_response = {"id": "1"}
-        publish_response = {"id": "1"}
-
-        mock_response_1 = MagicMock()
-        mock_response_1.json = AsyncMock(return_value=upload_response)
-
-        mock_response_2 = MagicMock()
-        mock_response_2.json = AsyncMock(return_value=publish_response)
-
+        mock_response = MagicMock()
+        mock_response.json = AsyncMock(return_value=upload_response)
         mock_post.side_effect = [
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_1)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_2)),
+            MagicMock(__aenter__=AsyncMock(return_value=mock_response)),
         ]
 
-        attachment = Attachment(MediaType.IMAGE, "https://some-image-uri.com")
-        actual = await self.api.publish(text="Some text", attachments=[attachment])
+        media = Media(MediaType.IMAGE, "https://some-image-uri.com")
+        actual = await self.api.create_container(
+            text="Some text", media=media, is_carousel_item=True
+        )
 
+        # Assertions
         mock_build_graph_api_url.assert_has_calls(
             [
                 call(
@@ -538,373 +489,128 @@ class APITest(unittest.IsolatedAsyncioTestCase):
                         "media_type": "IMAGE",
                         "reply_control": "everyone",
                         "image_url": "https://some-image-uri.com",
+                        "is_carousel_item": True,
                     },
-                    "someaccesstoken",
-                ),
-                call(
-                    f"{self.credentials.user_id}/threads_publish",
-                    {"creation_id": "1"},
                     "someaccesstoken",
                 ),
             ]
         )
 
-        mock_post.assert_has_calls(
-            [call("https://some-uri.com"), call("https://some-uri.com")]
-        )
+        mock_post.assert_has_calls([call("https://some-uri.com")])
 
-        self.assertEqual(actual, publish_response)
+        self.assertEqual(actual, "1")
+
+    async def test_create_container_with_expired_credentials(self):
+        with self.assertRaises(ThreadsAccessTokenExpired):
+            media = Media(MediaType.IMAGE, "https://some-image-uri.com")
+            await self.api_with_expired_credentials.create_container(media=media)
 
     @patch("aiohttp.ClientSession.post")
     @patch("pythreads.api.Threads.build_graph_api_url")
-    async def test_publish_video_and_text_thread(
-        self, mock_build_graph_api_url, mock_post
-    ):
+    async def test_create_carousel_container(self, mock_build_graph_api_url, mock_post):
+        # Mock out responses
         mock_build_graph_api_url.return_value = "https://some-uri.com"
-
-        upload_response = {"id": "1"}
-        publish_response = {"id": "1"}
-
-        mock_response_1 = MagicMock()
-        mock_response_1.json = AsyncMock(return_value=upload_response)
-
-        mock_response_2 = MagicMock()
-        mock_response_2.json = AsyncMock(return_value=publish_response)
-
+        response = {"id": "4"}
+        mock_response = MagicMock()
+        mock_response.json = AsyncMock(return_value=response)
         mock_post.side_effect = [
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_1)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_2)),
+            MagicMock(__aenter__=AsyncMock(return_value=mock_response)),
         ]
 
-        attachment = Attachment(MediaType.VIDEO, "https://some-video-uri.com")
-        actual = await self.api.publish(text="Some text", attachments=[attachment])
+        media_1 = ContainerStatus("1", PublishingStatus.FINISHED)
+        media_2 = ContainerStatus("2", PublishingStatus.FINISHED)
+        media_3 = ContainerStatus("3", PublishingStatus.FINISHED)
+        actual = await self.api.create_carousel_container(
+            containers=[media_1, media_2, media_3]
+        )
 
+        # Assertions
+        mock_build_graph_api_url.assert_has_calls(
+            [
+                call(
+                    f"{self.credentials.user_id}/threads",
+                    {
+                        "media_type": "CAROUSEL",
+                        "reply_control": "everyone",
+                        "children": "1,2,3",
+                    },
+                    "someaccesstoken",
+                ),
+            ]
+        )
+
+        mock_post.assert_has_calls([call("https://some-uri.com")])
+
+        self.assertEqual(actual, "4")
+
+    @patch("aiohttp.ClientSession.post")
+    @patch("pythreads.api.Threads.build_graph_api_url")
+    async def test_create_carousel_and_text_container(
+        self, mock_build_graph_api_url, mock_post
+    ):
+        # Mock out responses
+        mock_build_graph_api_url.return_value = "https://some-uri.com"
+        response = {"id": "4"}
+        mock_response = MagicMock()
+        mock_response.json = AsyncMock(return_value=response)
+        mock_post.side_effect = [
+            MagicMock(__aenter__=AsyncMock(return_value=mock_response)),
+        ]
+
+        media_1 = ContainerStatus("1", PublishingStatus.FINISHED)
+        media_2 = ContainerStatus("2", PublishingStatus.FINISHED)
+        media_3 = ContainerStatus("3", PublishingStatus.FINISHED)
+        actual = await self.api.create_carousel_container(
+            text="Some text", containers=[media_1, media_2, media_3]
+        )
+
+        # Assertions
         mock_build_graph_api_url.assert_has_calls(
             [
                 call(
                     f"{self.credentials.user_id}/threads",
                     {
                         "text": "Some text",
-                        "media_type": "VIDEO",
-                        "reply_control": "everyone",
-                        "video_url": "https://some-video-uri.com",
-                    },
-                    "someaccesstoken",
-                ),
-                call(
-                    f"{self.credentials.user_id}/threads_publish",
-                    {"creation_id": "1"},
-                    "someaccesstoken",
-                ),
-            ]
-        )
-
-        mock_post.assert_has_calls(
-            [call("https://some-uri.com"), call("https://some-uri.com")]
-        )
-
-        self.assertEqual(actual, publish_response)
-
-    @patch("aiohttp.ClientSession.post")
-    @patch("pythreads.api.Threads.build_graph_api_url")
-    async def test_publish_carousel_only_thread(
-        self, mock_build_graph_api_url, mock_post
-    ):
-        mock_build_graph_api_url.return_value = "https://some-uri.com"
-
-        upload_response_1 = {"id": "1"}
-        upload_response_2 = {"id": "2"}
-        upload_response_3 = {"id": "3"}
-        upload_response_4 = {"id": "4"}
-
-        publish_response = {"id": "4"}
-
-        mock_response_1 = MagicMock()
-        mock_response_1.json = AsyncMock(return_value=upload_response_1)
-
-        mock_response_2 = MagicMock()
-        mock_response_2.json = AsyncMock(return_value=upload_response_2)
-
-        mock_response_3 = MagicMock()
-        mock_response_3.json = AsyncMock(return_value=upload_response_3)
-
-        mock_response_4 = MagicMock()
-        mock_response_4.json = AsyncMock(return_value=upload_response_4)
-
-        mock_response_5 = MagicMock()
-        mock_response_5.json = AsyncMock(return_value=publish_response)
-
-        mock_post.side_effect = [
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_1)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_2)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_3)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_4)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_5)),
-        ]
-
-        attachment_1 = Attachment(MediaType.IMAGE, "https://some-image-uri.com/1")
-        attachment_2 = Attachment(MediaType.VIDEO, "https://some-video-uri.com/1")
-        attachment_3 = Attachment(MediaType.IMAGE, "https://some-image-uri.com/2")
-        actual = await self.api.publish(
-            attachments=[attachment_1, attachment_2, attachment_3]
-        )
-
-        mock_build_graph_api_url.assert_has_calls(
-            [
-                call(
-                    f"{self.credentials.user_id}/threads",
-                    {
-                        "text": None,
-                        "media_type": "IMAGE",
-                        "is_carousel_item": True,
-                        "reply_control": "everyone",
-                        "image_url": "https://some-image-uri.com/1",
-                    },
-                    "someaccesstoken",
-                ),
-                call(
-                    f"{self.credentials.user_id}/threads",
-                    {
-                        "text": None,
-                        "media_type": "VIDEO",
-                        "is_carousel_item": True,
-                        "reply_control": "everyone",
-                        "video_url": "https://some-video-uri.com/1",
-                    },
-                    "someaccesstoken",
-                ),
-                call(
-                    f"{self.credentials.user_id}/threads",
-                    {
-                        "text": None,
-                        "media_type": "IMAGE",
-                        "is_carousel_item": True,
-                        "reply_control": "everyone",
-                        "image_url": "https://some-image-uri.com/2",
-                    },
-                    "someaccesstoken",
-                ),
-                call(
-                    f"{self.credentials.user_id}/threads",
-                    {
-                        "text": None,
                         "media_type": "CAROUSEL",
                         "reply_control": "everyone",
-                        "children": ["1", "2", "3"],
+                        "children": "1,2,3",
                     },
                     "someaccesstoken",
                 ),
-                call(
-                    f"{self.credentials.user_id}/threads_publish",
-                    {"creation_id": "4"},
-                    "someaccesstoken",
-                ),
             ]
         )
 
-        mock_post.assert_has_calls(
-            [
-                call("https://some-uri.com"),
-                call("https://some-uri.com"),
-                call("https://some-uri.com"),
-                call("https://some-uri.com"),
-                call("https://some-uri.com"),
-            ]
-        )
+        mock_post.assert_has_calls([call("https://some-uri.com")])
 
-        self.assertEqual(actual, publish_response)
+        self.assertEqual(actual, "4")
 
     @patch("aiohttp.ClientSession.post")
     @patch("pythreads.api.Threads.build_graph_api_url")
-    async def test_publish_carousel_and_text_thread(
+    async def test_create_carousel_and_text_with_options_container(
         self, mock_build_graph_api_url, mock_post
     ):
+        # Mock out responses
         mock_build_graph_api_url.return_value = "https://some-uri.com"
-
-        upload_response_1 = {"id": "1"}
-        upload_response_2 = {"id": "2"}
-        upload_response_3 = {"id": "3"}
-        upload_response_4 = {"id": "4"}
-
-        publish_response = {"id": "4"}
-
-        mock_response_1 = MagicMock()
-        mock_response_1.json = AsyncMock(return_value=upload_response_1)
-
-        mock_response_2 = MagicMock()
-        mock_response_2.json = AsyncMock(return_value=upload_response_2)
-
-        mock_response_3 = MagicMock()
-        mock_response_3.json = AsyncMock(return_value=upload_response_3)
-
-        mock_response_4 = MagicMock()
-        mock_response_4.json = AsyncMock(return_value=upload_response_4)
-
-        mock_response_5 = MagicMock()
-        mock_response_5.json = AsyncMock(return_value=publish_response)
-
+        response = {"id": "4"}
+        mock_response = MagicMock()
+        mock_response.json = AsyncMock(return_value=response)
         mock_post.side_effect = [
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_1)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_2)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_3)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_4)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_5)),
+            MagicMock(__aenter__=AsyncMock(return_value=mock_response)),
         ]
 
-        attachment_1 = Attachment(MediaType.IMAGE, "https://some-image-uri.com/1")
-        attachment_2 = Attachment(MediaType.VIDEO, "https://some-video-uri.com/1")
-        attachment_3 = Attachment(MediaType.IMAGE, "https://some-image-uri.com/2")
-        actual = await self.api.publish(
-            text="Some text", attachments=[attachment_1, attachment_2, attachment_3]
-        )
-
-        mock_build_graph_api_url.assert_has_calls(
-            [
-                call(
-                    f"{self.credentials.user_id}/threads",
-                    {
-                        "text": None,
-                        "media_type": "IMAGE",
-                        "is_carousel_item": True,
-                        "reply_control": "everyone",
-                        "image_url": "https://some-image-uri.com/1",
-                    },
-                    "someaccesstoken",
-                ),
-                call(
-                    f"{self.credentials.user_id}/threads",
-                    {
-                        "text": None,
-                        "media_type": "VIDEO",
-                        "is_carousel_item": True,
-                        "reply_control": "everyone",
-                        "video_url": "https://some-video-uri.com/1",
-                    },
-                    "someaccesstoken",
-                ),
-                call(
-                    f"{self.credentials.user_id}/threads",
-                    {
-                        "text": None,
-                        "media_type": "IMAGE",
-                        "is_carousel_item": True,
-                        "reply_control": "everyone",
-                        "image_url": "https://some-image-uri.com/2",
-                    },
-                    "someaccesstoken",
-                ),
-                call(
-                    f"{self.credentials.user_id}/threads",
-                    {
-                        "text": "Some text",
-                        "media_type": "CAROUSEL",
-                        "reply_control": "everyone",
-                        "children": ["1", "2", "3"],
-                    },
-                    "someaccesstoken",
-                ),
-                call(
-                    f"{self.credentials.user_id}/threads_publish",
-                    {"creation_id": "4"},
-                    "someaccesstoken",
-                ),
-            ]
-        )
-
-        mock_post.assert_has_calls(
-            [
-                call("https://some-uri.com"),
-                call("https://some-uri.com"),
-                call("https://some-uri.com"),
-                call("https://some-uri.com"),
-                call("https://some-uri.com"),
-            ]
-        )
-
-        self.assertEqual(actual, publish_response)
-
-    @patch("aiohttp.ClientSession.post")
-    @patch("pythreads.api.Threads.build_graph_api_url")
-    async def test_publish_carousel_and_text_with_options_thread(
-        self, mock_build_graph_api_url, mock_post
-    ):
-        mock_build_graph_api_url.return_value = "https://some-uri.com"
-
-        upload_response_1 = {"id": "1"}
-        upload_response_2 = {"id": "2"}
-        upload_response_3 = {"id": "3"}
-        upload_response_4 = {"id": "4"}
-
-        publish_response = {"id": "4"}
-
-        mock_response_1 = MagicMock()
-        mock_response_1.json = AsyncMock(return_value=upload_response_1)
-
-        mock_response_2 = MagicMock()
-        mock_response_2.json = AsyncMock(return_value=upload_response_2)
-
-        mock_response_3 = MagicMock()
-        mock_response_3.json = AsyncMock(return_value=upload_response_3)
-
-        mock_response_4 = MagicMock()
-        mock_response_4.json = AsyncMock(return_value=upload_response_4)
-
-        mock_response_5 = MagicMock()
-        mock_response_5.json = AsyncMock(return_value=publish_response)
-
-        mock_post.side_effect = [
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_1)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_2)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_3)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_4)),
-            MagicMock(__aenter__=AsyncMock(return_value=mock_response_5)),
-        ]
-
-        attachment_1 = Attachment(MediaType.IMAGE, "https://some-image-uri.com/1")
-        attachment_2 = Attachment(MediaType.VIDEO, "https://some-video-uri.com/1")
-        attachment_3 = Attachment(MediaType.IMAGE, "https://some-image-uri.com/2")
-        actual = await self.api.publish(
+        media_1 = ContainerStatus("1", PublishingStatus.FINISHED)
+        media_2 = ContainerStatus("2", PublishingStatus.FINISHED)
+        media_3 = ContainerStatus("3", PublishingStatus.FINISHED)
+        actual = await self.api.create_carousel_container(
             text="Some text",
-            attachments=[attachment_1, attachment_2, attachment_3],
+            containers=[media_1, media_2, media_3],
             reply_control=ReplyControl.ACCOUNTS_YOU_FOLLOW,
             reply_to_id="9999",
         )
 
+        # Assertions
         mock_build_graph_api_url.assert_has_calls(
             [
-                call(
-                    f"{self.credentials.user_id}/threads",
-                    {
-                        "text": None,
-                        "media_type": "IMAGE",
-                        "is_carousel_item": True,
-                        "reply_control": "accounts_you_follow",
-                        "image_url": "https://some-image-uri.com/1",
-                    },
-                    "someaccesstoken",
-                ),
-                call(
-                    f"{self.credentials.user_id}/threads",
-                    {
-                        "text": None,
-                        "media_type": "VIDEO",
-                        "is_carousel_item": True,
-                        "reply_control": "accounts_you_follow",
-                        "video_url": "https://some-video-uri.com/1",
-                    },
-                    "someaccesstoken",
-                ),
-                call(
-                    f"{self.credentials.user_id}/threads",
-                    {
-                        "text": None,
-                        "media_type": "IMAGE",
-                        "is_carousel_item": True,
-                        "reply_control": "accounts_you_follow",
-                        "image_url": "https://some-image-uri.com/2",
-                    },
-                    "someaccesstoken",
-                ),
                 call(
                     f"{self.credentials.user_id}/threads",
                     {
@@ -912,39 +618,143 @@ class APITest(unittest.IsolatedAsyncioTestCase):
                         "media_type": "CAROUSEL",
                         "reply_control": "accounts_you_follow",
                         "reply_to_id": "9999",
-                        "children": ["1", "2", "3"],
+                        "children": "1,2,3",
                     },
                     "someaccesstoken",
                 ),
+            ]
+        )
+
+        mock_post.assert_has_calls([call("https://some-uri.com")])
+
+        self.assertEqual(actual, "4")
+
+    async def test_create_carousel_container_with_no_text_or_media(self):
+        with self.assertRaises(ValueError):
+            await self.api.create_carousel_container(containers=[])
+
+    async def test_create_carousel_container_with_expired_credentials(self):
+        with self.assertRaises(ThreadsAccessTokenExpired):
+            media_1 = ContainerStatus("1", PublishingStatus.FINISHED)
+            media_2 = ContainerStatus("2", PublishingStatus.FINISHED)
+            media_3 = ContainerStatus("3", PublishingStatus.FINISHED)
+            await self.api_with_expired_credentials.create_carousel_container(
+                containers=[media_1, media_2, media_3]
+            )
+
+    @patch("aiohttp.ClientSession.get")
+    @patch("pythreads.api.Threads.build_graph_api_url")
+    async def test_container_status(self, mock_build_graph_api_url, mock_get):
+        # Mock out responses
+        expected = {
+            "status": "FINISHED",
+            "id": "17889615691921648",
+        }
+        expected_result = ContainerStatus(
+            id="17889615691921648",
+            status=PublishingStatus.FINISHED,
+            error=None,
+        )
+        mock_response(mock_get, expected)
+        mock_build_graph_api_url.return_value = "https://some-uri.com"
+
+        actual = await self.api.container_status("17889615691921648")
+
+        # Assertions
+        mock_build_graph_api_url.assert_called_once_with(
+            "17889615691921648",
+            {
+                "fields": ",".join(
+                    [
+                        "id",
+                        "status",
+                        "error_message",
+                    ]
+                ),
+            },
+            "someaccesstoken",
+        )
+
+        mock_get.assert_called_once_with("https://some-uri.com")
+
+        self.assertEqual(actual, expected_result)
+
+    async def test_container_status_with_expired_credentials(self):
+        with self.assertRaises(ThreadsAccessTokenExpired):
+            await self.api_with_expired_credentials.container_status("someid")
+
+    @patch("aiohttp.ClientSession.get")
+    @patch("pythreads.api.Threads.build_graph_api_url")
+    async def test_container_status_with_error(
+        self, mock_build_graph_api_url, mock_get
+    ):
+        # Mock out responses
+        expected = {
+            "status": "ERROR",
+            "id": "17889615691921648",
+            "error_message": "FAILED_DOWNLOADING_VIDEO",
+        }
+        expected_result = ContainerStatus(
+            id="17889615691921648",
+            status=PublishingStatus.ERROR,
+            error=PublishingError.FAILED_DOWNLOADING_VIDEO,
+        )
+        mock_response(mock_get, expected)
+        mock_build_graph_api_url.return_value = "https://some-uri.com"
+
+        actual = await self.api.container_status("17889615691921648")
+
+        # Assertions
+        mock_build_graph_api_url.assert_called_once_with(
+            "17889615691921648",
+            {
+                "fields": ",".join(
+                    [
+                        "id",
+                        "status",
+                        "error_message",
+                    ]
+                ),
+            },
+            "someaccesstoken",
+        )
+
+        mock_get.assert_called_once_with("https://some-uri.com")
+
+        self.assertEqual(actual, expected_result)
+
+    @patch("aiohttp.ClientSession.post")
+    @patch("pythreads.api.Threads.build_graph_api_url")
+    async def test_publish_container(self, mock_build_graph_api_url, mock_post):
+        # Mock out responses
+        mock_build_graph_api_url.return_value = "https://some-uri.com"
+        response = {"id": "1"}
+        mock_response = MagicMock()
+        mock_response.json = AsyncMock(return_value=response)
+        mock_post.side_effect = [
+            MagicMock(__aenter__=AsyncMock(return_value=mock_response)),
+        ]
+
+        actual = await self.api.publish_container("1")
+
+        # Assertions
+        mock_build_graph_api_url.assert_has_calls(
+            [
                 call(
                     f"{self.credentials.user_id}/threads_publish",
-                    {"creation_id": "4"},
+                    {"creation_id": "1"},
                     "someaccesstoken",
                 ),
             ]
         )
 
-        mock_post.assert_has_calls(
-            [
-                call("https://some-uri.com"),
-                call("https://some-uri.com"),
-                call("https://some-uri.com"),
-                call("https://some-uri.com"),
-                call("https://some-uri.com"),
-            ]
-        )
+        mock_post.assert_has_calls([call("https://some-uri.com")])
 
-        self.assertEqual(actual, publish_response)
+        self.assertEqual(actual, "1")
 
-    async def test_publish_with_no_text_or_media(self):
-        with self.assertRaises(ValueError):
-            await self.api.publish(attachments=[])
-
-    async def test_publish_with_expired_credentials(self):
+    async def test_publish_container_with_expired_credentials(self):
         with self.assertRaises(ThreadsAccessTokenExpired):
-            await self.api_with_expired_credentials.publish()
-        with self.assertRaises(ThreadsAccessTokenExpired):
-            await self.api_with_expired_credentials.publish()
+            await self.api_with_expired_credentials.publish_container("1")
 
     @patch("aiohttp.ClientSession.get")
     @patch("pythreads.api.Threads.build_graph_api_url")
