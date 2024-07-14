@@ -1,0 +1,642 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="API Module" href="pythreads.html" />
+
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
+        <title>PyThreads 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=387cc868" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" /
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="#"><div class="brand">PyThreads 0.2.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
+  
+  
+  <span class="sidebar-brand-text">PyThreads 0.2.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pythreads.html">API Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pythreads.html#module-pythreads.configuration">Configuration Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pythreads.html#module-pythreads.credentials">Credentials Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pythreads.html#module-pythreads.threads">Threads Module</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/index.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="welcome-to-pythreads-s-documentation">
+<h1>Welcome to PyThreads’s documentation!<a class="headerlink" href="#welcome-to-pythreads-s-documentation" title="Link to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pythreads.html">API Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pythreads.html#pythreads.api.API"><code class="docutils literal notranslate"><span class="pre">API</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pythreads.html#pythreads.api.ContainerStatus"><code class="docutils literal notranslate"><span class="pre">ContainerStatus</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pythreads.html#pythreads.api.Media"><code class="docutils literal notranslate"><span class="pre">Media</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pythreads.html#pythreads.api.MediaType"><code class="docutils literal notranslate"><span class="pre">MediaType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pythreads.html#pythreads.api.PublishingError"><code class="docutils literal notranslate"><span class="pre">PublishingError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pythreads.html#pythreads.api.PublishingStatus"><code class="docutils literal notranslate"><span class="pre">PublishingStatus</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pythreads.html#pythreads.api.ReplyControl"><code class="docutils literal notranslate"><span class="pre">ReplyControl</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pythreads.html#pythreads.api.ThreadsInvalidParameter"><code class="docutils literal notranslate"><span class="pre">ThreadsInvalidParameter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pythreads.html#pythreads.api.ThreadsResponseError"><code class="docutils literal notranslate"><span class="pre">ThreadsResponseError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pythreads.html#module-pythreads.configuration">Configuration Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pythreads.html#pythreads.configuration.Configuration"><code class="docutils literal notranslate"><span class="pre">Configuration</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pythreads.html#module-pythreads.credentials">Credentials Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pythreads.html#pythreads.credentials.Credentials"><code class="docutils literal notranslate"><span class="pre">Credentials</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pythreads.html#module-pythreads.threads">Threads Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pythreads.html#pythreads.threads.Threads"><code class="docutils literal notranslate"><span class="pre">Threads</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pythreads.html#pythreads.threads.ThreadsAccessTokenExpired"><code class="docutils literal notranslate"><span class="pre">ThreadsAccessTokenExpired</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pythreads.html#pythreads.threads.ThreadsAuthenticationError"><code class="docutils literal notranslate"><span class="pre">ThreadsAuthenticationError</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+<section id="pythreads">
+<h2>PyThreads<a class="headerlink" href="#pythreads" title="Link to this heading">¶</a></h2>
+<p><a class="reference external" href="https://pypi.org/project/pythreads"><img alt="PyPI - Version" src="https://img.shields.io/pypi/v/pythreads.svg" /></a>
+<a class="reference external" href="https://pypi.org/project/pythreads"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/pythreads.svg" /></a>
+<img alt="Code Coverage" src="https://img.shields.io/badge/coverage-93%25-brightgreen" /></p>
+<p>PyThreads is a Python wrapper for Meta’s Threads API. It is still in beta,
+but is well-tested and covers all the published endpoints documented by Meta.</p>
+<p>Since it is in pre-release, the API is not yet guaranteed to be stable. Once
+there’s been some opportunity to weed out any bugs and identify any DX
+inconveniences, a v1 with a stable API will be released. This project
+follows <a class="reference external" href="https://semver.org/">Semantic Versioning</a>.</p>
+<hr class="docutils" />
+<section id="table-of-contents">
+<h3>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="#installation">Installation</a></p></li>
+<li><p><a class="reference internal" href="#environment-variables">Environment Variables</a></p></li>
+<li><p><a class="reference internal" href="#authentication-authorization">Authentication &amp; Authorization</a></p></li>
+<li><p><a class="reference internal" href="#making-requests">Making Requests</a></p></li>
+<li><p><a class="reference internal" href="#api-methods">API Methods</a></p></li>
+<li><p><a class="reference internal" href="#roadmap">Roadmap</a></p></li>
+<li><p><a class="reference internal" href="#license">License</a></p></li>
+</ul>
+</section>
+<section id="installation">
+<h3>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h3>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install pythreads</span>
+</pre></div>
+</div>
+</section>
+<section id="environment-variables">
+<h3>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading">¶</a></h3>
+<p>You will need to create an app in the <a class="reference external" href="https://developers.facebook.com/docs/development/create-an-app/threads-use-case">developer console</a> which has the Threads Use Case enabled and add the the following variables to your environment. The redirect URI needs to be the URL in your application where you call the <code class="docutils literal notranslate"><span class="pre">complete_authorization</span></code> method.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">THREADS_REDIRECT_URI</span><span class="o">=</span>
+<span class="n">THREADS_APP_ID</span><span class="o">=</span>
+<span class="n">THREADS_API_SECRET</span><span class="o">=</span>
+</pre></div>
+</div>
+</section>
+<section id="authentication-authorization">
+<h3>Authentication &amp; Authorization<a class="headerlink" href="#authentication-authorization" title="Link to this heading">¶</a></h3>
+<p>Authenticating with PyThreads is very simple:</p>
+<ol class="arabic">
+<li><p>Generate an authorization url and state key. Make the auth_url the
+href of a link or button and <strong>store the state_key</strong> (which is
+a randomly generated, opaque string used to mitigate CSRF attacks)
+somewhere you can reference later when Threads redirects the user back
+to your redirect URI.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">auth_url</span><span class="p">,</span> <span class="n">state_key</span> <span class="o">=</span> <span class="n">Threads</span><span class="o">.</span><span class="n">authorization_url</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p>When the user clicks the link/button, they will be sent to Threads to
+authenticate and authorize your application access to their account.
+Upon authorization, they will be sent to your THREADS_REDIRECT_URI. At your
+THREADS_REDIRECT_URI endpoint, call <code class="docutils literal notranslate"><span class="pre">complete_authorization</span></code> with the full
+URL of the request made to your server (which contains the auth code) and
+the <code class="docutils literal notranslate"><span class="pre">state_key</span></code>, which was generated in the previous step:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">credentials</span> <span class="o">=</span> <span class="n">Threads</span><span class="o">.</span><span class="n">complete_authorization</span><span class="p">(</span><span class="n">requested_url</span><span class="p">,</span> <span class="n">state_key</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>This method automatically exchanges the auth code for a short-lived token
+and immediately exchanges the short-lived token for a long-lived token.
+The method returns <code class="docutils literal notranslate"><span class="pre">Credentials</span></code> object, which contains this long-lived
+token and details about the user. The <code class="docutils literal notranslate"><span class="pre">Credentials</span></code> object can be
+serialized and deserialized to/from JSON, making it easy for you to
+persist it in some data store or store it encrypted in the user’s
+session.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="o">=</span> <span class="n">credentials</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;someid&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;scopes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;threads_basic&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;short_lived&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;access_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;someaccesstoken&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;expiration&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-06-23T18:25:43.511Z&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Credentials</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">json</span><span class="p">)</span>
+
+<span class="c1"># or</span>
+
+<span class="n">Credentials</span><span class="p">(</span>
+    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;someid&quot;</span><span class="p">,</span>
+    <span class="n">scopes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;threads_basic&quot;</span><span class="p">],</span>
+    <span class="n">short_lived</span><span class="o">=</span><span class="n">false</span><span class="p">,</span>
+    <span class="n">access_token</span><span class="o">=</span><span class="s2">&quot;someaccesstoken&quot;</span><span class="p">,</span>
+    <span class="n">expiration</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">121680</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>Long-lived tokens last 60 days, and are refreshable, as long as the
+token hasn’t expired yet. Implement your own application logic to
+determine when it makes sense to refresh users’ long-lived tokens, which
+you can do with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">refreshed_credentials</span> <span class="o">=</span> <span class="n">Threads</span><span class="o">.</span><span class="n">refresh_long_lived_token</span><span class="p">(</span><span class="n">old_credentials</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A <code class="docutils literal notranslate"><span class="pre">Credentials</span></code> object has convenience methods to make it easier for
+you to determine whether the token is still valid and how much longer
+it is valid for.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">credentials</span><span class="o">.</span><span class="n">expired</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kc">False</span>
+
+<span class="n">credentials</span><span class="o">.</span><span class="n">expires_in</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="mi">7200</span> <span class="c1"># seconds</span>
+</pre></div>
+</div>
+<p>Of course, you can always check the expiration time directly. It is
+stored in UTC time:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">credentials</span><span class="o">.</span><span class="n">expiration</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">870181</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you call an API method using expired credentials, a <code class="docutils literal notranslate"><span class="pre">ThreadsAccessTokenExpired</span></code>
+exception will be raised.</p>
+</li>
+</ol>
+</section>
+<section id="making-requests">
+<h3>Making Requests<a class="headerlink" href="#making-requests" title="Link to this heading">¶</a></h3>
+<p>Once you have a valid <code class="docutils literal notranslate"><span class="pre">Credentials</span></code> object, you can use an <code class="docutils literal notranslate"><span class="pre">API</span></code> object to
+call the Threads API. The <code class="docutils literal notranslate"><span class="pre">API</span></code> object uses an <code class="docutils literal notranslate"><span class="pre">aiohttp.ClientSession</span></code> to make
+async HTTP calls. You may either supply your own session or let the library
+create and manage one itself.</p>
+<p>If you do not supply your own session, PyThreads will create one and take
+responsibility for closing it. You must use the <code class="docutils literal notranslate"><span class="pre">API</span></code> object as an async
+context manager if you want it to manage a session for you:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Retrieve the user&#39;s credentials from whereever you&#39;re storing them:</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">Credentials</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">stored_json</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">with</span> <span class="n">API</span><span class="p">(</span><span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">)</span> <span class="k">as</span> <span class="n">api</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">threads</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If you want to create and manage your own session (e.g. you’re already
+using <code class="docutils literal notranslate"><span class="pre">aiohttp</span></code> elsewhere in your application and want to use a single
+session for all requests):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create an `aiohttp.ClientSession` at some point:</span>
+<span class="n">session</span> <span class="o">=</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">()</span>
+
+<span class="c1"># Retrieve the user&#39;s credentials from whereever you&#39;re storing them:</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">Credentials</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">stored_json</span><span class="p">)</span>
+
+<span class="n">api</span> <span class="o">=</span> <span class="n">API</span><span class="p">(</span><span class="n">credentials</span><span class="o">=</span><span class="n">credentials</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="n">session</span><span class="p">)</span>
+<span class="n">threads</span> <span class="o">=</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">threads</span><span class="p">()</span>
+
+<span class="c1"># If you supply your own session, you are responsible for closing it:</span>
+<span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="api-methods">
+<h3>API Methods<a class="headerlink" href="#api-methods" title="Link to this heading">¶</a></h3>
+<p>Most of the methods follow <a class="reference external" href="https://developers.facebook.com/docs/threads">Meta’s API</a>
+closely, with required/optional arguments matching API required/optional
+parameters.</p>
+<section id="making-a-text-only-post">
+<h4>Making a text-only post<a class="headerlink" href="#making-a-text-only-post" title="Link to this heading">¶</a></h4>
+<p>Making a text-only post is a two-step process. Create a container and then
+publish it:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">with</span> <span class="n">API</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span> <span class="k">as</span> <span class="n">api</span><span class="p">:</span>
+    <span class="n">container_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">create_container</span><span class="p">(</span><span class="s2">&quot;A text-only post&quot;</span><span class="p">)</span>
+    <span class="n">result_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">publish_container</span><span class="p">(</span><span class="n">container_id</span><span class="p">)</span>
+    <span class="c1"># container_id == result_id</span>
+</pre></div>
+</div>
+</section>
+<section id="making-a-post-with-a-single-media-file">
+<h4>Making a post with a single media file<a class="headerlink" href="#making-a-post-with-a-single-media-file" title="Link to this heading">¶</a></h4>
+<p>Making a post with a single media file is also a two-step process. Create a
+container with the media file and any post text and then publish it:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">with</span> <span class="n">API</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span> <span class="k">as</span> <span class="n">api</span><span class="p">:</span>
+    <span class="c1"># Create a video container. You must put media resources at a publicly-accessible URL where Threads can download it.</span>
+    <span class="n">a_video</span> <span class="o">=</span> <span class="n">Media</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">MediaType</span><span class="o">.</span><span class="n">VIDEO</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://mybucket.s3.amazonaws.com/video.mp4&quot;</span><span class="p">)</span>
+    <span class="n">container_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">create_container</span><span class="p">(</span><span class="n">media</span><span class="o">=</span><span class="n">a_video</span><span class="p">)</span>
+
+    <span class="c1"># Video containers need to complete processing before you can publish them</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+
+    <span class="c1"># Check the status to see if it&#39;s finished processing</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">container_status</span><span class="p">(</span><span class="n">container_id</span><span class="p">)</span>
+    <span class="c1"># &gt;&gt;&gt; ContainerStatus(id=&#39;14781862679302648&#39;, status=&lt;PublishingStatus.FINISHED: &#39;FINISHED&#39;&gt;, error=None)</span>
+
+    <span class="c1"># Publish the video container</span>
+    <span class="n">result_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">publish_container</span><span class="p">(</span><span class="n">container_id</span><span class="p">)</span>
+    <span class="c1"># container_id == result_id</span>
+</pre></div>
+</div>
+</section>
+<section id="making-a-carousel-post">
+<h4>Making a carousel post<a class="headerlink" href="#making-a-carousel-post" title="Link to this heading">¶</a></h4>
+<p>Making a post with a media carousel is a three-step process. Create a container
+for each media file in the carousel, then create a container for the carousel
+(attaching the media containers as children), and publish the carousel container:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">with</span> <span class="n">API</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">credentials</span><span class="p">)</span> <span class="k">as</span> <span class="n">api</span><span class="p">:</span>
+    <span class="c1"># Create an image container</span>
+    <span class="n">an_image</span> <span class="o">=</span> <span class="n">Media</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">MediaType</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://mybucket.s3.amazonaws.com/python.png&quot;</span><span class="p">)</span>
+    <span class="n">image_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">create_container</span><span class="p">(</span><span class="n">media</span><span class="o">=</span><span class="n">an_image</span><span class="p">,</span> <span class="n">is_carousel_item</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Create a video container</span>
+    <span class="n">a_video</span> <span class="o">=</span> <span class="n">Media</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">MediaType</span><span class="o">.</span><span class="n">VIDEO</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://mybucket.s3.amazonaws.com/video.mp4&quot;</span><span class="p">)</span>
+    <span class="n">video_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">create_container</span><span class="p">(</span><span class="n">media</span><span class="o">=</span><span class="n">a_video</span><span class="p">,</span> <span class="n">is_carousel_item</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Video containers need to complete processing before you can publish them</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+
+    <span class="c1"># Check the status to see if the containers are finished processing</span>
+    <span class="n">status_1</span> <span class="o">=</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">container_status</span><span class="p">(</span><span class="n">image_id</span><span class="p">)</span>
+    <span class="n">status_2</span> <span class="o">=</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">container_status</span><span class="p">(</span><span class="n">video_id</span><span class="p">)</span>
+    <span class="c1"># &gt;&gt;&gt; ContainerStatus(id=&#39;14781862679302648&#39;, status=&lt;PublishingStatus.FINISHED: &#39;FINISHED&#39;&gt;, error=None)</span>
+    <span class="c1"># &gt;&gt;&gt; ContainerStatus(id=&#39;14823646267930264&#39;, status=&lt;PublishingStatus.FINISHED: &#39;FINISHED&#39;&gt;, error=None)</span>
+
+    <span class="c1"># Create the carousel container, which wraps the media containers as children</span>
+    <span class="n">carousel_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">create_carousel_container</span><span class="p">(</span><span class="n">containers</span><span class="o">=</span><span class="p">[</span><span class="n">status_1</span><span class="p">,</span> <span class="n">status_2</span><span class="p">],</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Here&#39;s a carousel&quot;</span><span class="p">)</span>
+
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+
+    <span class="c1"># Check the carousel container status</span>
+    <span class="n">carousel_status</span> <span class="o">=</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">container_status</span><span class="p">(</span><span class="n">carousel_id</span><span class="p">)</span>
+    <span class="c1"># &gt;&gt;&gt; ContainerStatus(id=&#39;15766826793021848&#39;, status=&lt;PublishingStatus.FINISHED: &#39;FINISHED&#39;&gt;, error=None)</span>
+
+    <span class="c1"># Publish the carousel container</span>
+    <span class="n">result_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">publish_container</span><span class="p">(</span><span class="n">carousel_id</span><span class="p">)</span>
+    <span class="c1"># carousel_id == result_id</span>
+</pre></div>
+</div>
+<p>A few key things to point out above:</p>
+<ol class="arabic simple">
+<li><p>Creating media containers requires you to put the image or video at a
+publicly-accessible URL. Meta retrieves the media file from that URL.</p></li>
+<li><p>When creating a media container with a video, Threads requires you to
+wait for the video to be processed before you can either publish them or
+attach them to a carousel container. This can take seconds or minutes.</p></li>
+</ol>
+<p>You are <strong>strongly encouraged</strong> to read Meta’s documentation regarding the posting
+process:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://developers.facebook.com/docs/threads/posts">Post to Threads</a></p></li>
+<li><p><a class="reference external" href="https://developers.facebook.com/docs/threads/troubleshooting#publishing-does-not-return-a-media-id">Understanding Container Status</a></p></li>
+</ul>
+</section>
+</section>
+<section id="roadmap">
+<h3>Roadmap<a class="headerlink" href="#roadmap" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>[ ] Improve documentation of <code class="docutils literal notranslate"><span class="pre">API</span></code> methods and publish the docs.</p></li>
+<li><p>[ ] Type the return values of the <code class="docutils literal notranslate"><span class="pre">API</span></code> methods. They currently all return <code class="docutils literal notranslate"><span class="pre">Any</span></code>.</p></li>
+<li><p>[ ] Add integration with S3 and R2 storage. The Threads API doesn’t take media uploads directly. You have to upload files to a publicly accessible URL and pass the URL in the API response. This integration would handle the upload to cloud storage and passing of the URL to the Threads API for you.</p></li>
+<li><p>[ ] Explore adding JSON fixtures of expected responses to specs.</p></li>
+</ul>
+</section>
+<section id="license">
+<h3>License<a class="headerlink" href="#license" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">pythreads</span></code> is distributed under the terms of the <a class="reference external" href="https://spdx.org/licenses/MIT.html">MIT</a> license.</p>
+</section>
+</section>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+</ul>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="pythreads.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">API Module</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Marc Love
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Welcome to PyThreads’s documentation!</a><ul>
+<li><a class="reference internal" href="#pythreads">PyThreads</a><ul>
+<li><a class="reference internal" href="#table-of-contents">Table of Contents</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#environment-variables">Environment Variables</a></li>
+<li><a class="reference internal" href="#authentication-authorization">Authentication &amp; Authorization</a></li>
+<li><a class="reference internal" href="#making-requests">Making Requests</a></li>
+<li><a class="reference internal" href="#api-methods">API Methods</a><ul>
+<li><a class="reference internal" href="#making-a-text-only-post">Making a text-only post</a></li>
+<li><a class="reference internal" href="#making-a-post-with-a-single-media-file">Making a post with a single media file</a></li>
+<li><a class="reference internal" href="#making-a-carousel-post">Making a carousel post</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#roadmap">Roadmap</a></li>
+<li><a class="reference internal" href="#license">License</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=4e2eecee"></script>
+    </body>
+</html>

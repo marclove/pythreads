@@ -1,0 +1,971 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Welcome to PyThreads’s documentation!" href="index.html" />
+
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
+        <title>API Module - PyThreads 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=387cc868" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" /
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">PyThreads 0.2.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">PyThreads 0.2.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">API Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#module-pythreads.configuration">Configuration Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#module-pythreads.credentials">Credentials Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#module-pythreads.threads">Threads Module</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/pythreads.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-pythreads.api">
+<span id="api-module"></span><h1>API Module<a class="headerlink" href="#module-pythreads.api" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pythreads.api.API">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pythreads.api.</span></span><span class="sig-name descname"><span class="pre">API</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">credentials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pythreads.credentials.Credentials" title="pythreads.credentials.Credentials"><span class="pre">Credentials</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ClientSession</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.api.API" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.api.API.account">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">account</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#pythreads.api.API.account" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.api.API.container">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.api.API.container" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.api.API.container_status">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">container_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">media_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pythreads.api.ContainerStatus" title="pythreads.api.ContainerStatus"><span class="pre">ContainerStatus</span></a></span></span><a class="headerlink" href="#pythreads.api.API.container_status" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.api.API.conversation">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">conversation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.api.API.conversation" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.api.API.create_carousel_container">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_carousel_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">containers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pythreads.api.ContainerStatus" title="pythreads.api.ContainerStatus"><span class="pre">ContainerStatus</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reply_control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pythreads.api.ReplyControl" title="pythreads.api.ReplyControl"><span class="pre">ReplyControl</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ReplyControl.EVERYONE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reply_to_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pythreads.api.API.create_carousel_container" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a carousel container.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>containers</strong> – A list of previously-created media containers that are
+to make up the carousel. You may provide between 2-10 media containers.</p></li>
+<li><p><strong>text</strong> – [optional] The thread’s text</p></li>
+<li><p><strong>reply_control</strong> – [optional] The <cite>ReplyControl</cite> policy to apply to the
+thread. Defaults to “everyone”.</p></li>
+<li><p><strong>reply_to_id</strong> – [optional] The id of an existing thread to make this
+thread in reply to.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The id of the published container
+<a class="reference external" href="https://developers.facebook.com/docs/threads/posts#step-2--publish-a-threads-media-container">https://developers.facebook.com/docs/threads/posts#step-2–publish-a-threads-media-container</a>
+<a class="reference external" href="https://developers.facebook.com/docs/threads/posts#step-3--publish-the-carousel-container">https://developers.facebook.com/docs/threads/posts#step-3–publish-the-carousel-container</a></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>OAuth2Error</strong> – If there was an issue with the OAuth2 authentication</p></li>
+<li><p><a class="reference internal" href="#pythreads.threads.ThreadsAccessTokenExpired" title="pythreads.threads.ThreadsAccessTokenExpired"><strong>ThreadsAccessTokenExpired</strong></a> – If the user’s token has expired</p></li>
+<li><p><a class="reference internal" href="#pythreads.threads.ThreadsAuthenticationError" title="pythreads.threads.ThreadsAuthenticationError"><strong>ThreadsAuthenticationError</strong></a> – If we receive an unexpected OAuth-related response from Threads</p></li>
+<li><p><a class="reference internal" href="#pythreads.api.ThreadsResponseError" title="pythreads.api.ThreadsResponseError"><strong>ThreadsResponseError</strong></a> – If we receive an unexpected response from Threads</p></li>
+<li><p><a class="reference internal" href="#pythreads.api.ThreadsInvalidParameter" title="pythreads.api.ThreadsInvalidParameter"><strong>ThreadsInvalidParameter</strong></a> – If you provide anything but 2-10 containers that are all in a state of “FINISHED”.</p></li>
+<li><p><strong>RuntimeError</strong> – If the session is missing</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.api.API.create_container">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pythreads.api.Media" title="pythreads.api.Media"><span class="pre">Media</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reply_control</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pythreads.api.ReplyControl" title="pythreads.api.ReplyControl"><span class="pre">ReplyControl</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ReplyControl.EVERYONE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reply_to_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_carousel_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pythreads.api.API.create_container" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a media container.</p>
+<p>While <cite>text</cite> and <cite>media</cite> are both optional, you must provide at least
+one or the other.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> – [optional] The thread’s text</p></li>
+<li><p><strong>media</strong> – [optional] The <cite>Media</cite> object</p></li>
+<li><p><strong>reply_control</strong> – [optional] The <cite>ReplyControl</cite> policy to apply to the
+thread. Defaults to ReplyControl.EVERYONE.</p></li>
+<li><p><strong>reply_to_id</strong> – [optional] The id of an existing thread to make this
+thread in reply to.</p></li>
+<li><p><strong>is_carousel_item</strong> – A boolean indicating whether this is a media
+container that will be added to a carousel container</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The id of the published container
+<a class="reference external" href="https://developers.facebook.com/docs/threads/posts#step-2--publish-a-threads-media-container">https://developers.facebook.com/docs/threads/posts#step-2–publish-a-threads-media-container</a>
+<a class="reference external" href="https://developers.facebook.com/docs/threads/posts#step-3--publish-the-carousel-container">https://developers.facebook.com/docs/threads/posts#step-3–publish-the-carousel-container</a></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>OAuth2Error</strong> – If there was an issue with the OAuth2 authentication</p></li>
+<li><p><a class="reference internal" href="#pythreads.threads.ThreadsAccessTokenExpired" title="pythreads.threads.ThreadsAccessTokenExpired"><strong>ThreadsAccessTokenExpired</strong></a> – If the user’s token has expired</p></li>
+<li><p><a class="reference internal" href="#pythreads.threads.ThreadsAuthenticationError" title="pythreads.threads.ThreadsAuthenticationError"><strong>ThreadsAuthenticationError</strong></a> – If we receive an unexpected OAuth-related response from Threads</p></li>
+<li><p><a class="reference internal" href="#pythreads.api.ThreadsResponseError" title="pythreads.api.ThreadsResponseError"><strong>ThreadsResponseError</strong></a> – If we receive an unexpected response from Threads</p></li>
+<li><p><strong>RuntimeError</strong> – If the session is missing</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.api.API.insights">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">insights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.api.API.insights" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.api.API.manage_reply">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">manage_reply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reply_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.api.API.manage_reply" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.api.API.publish_container">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">publish_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pythreads.api.API.publish_container" title="Link to this definition">¶</a></dt>
+<dd><p>Publish a container that has already been created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>container_id</strong> – The id of the container to publish. ids are returned
+from <cite>create_container</cite> and <cite>create_carousel_container</cite></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The id of the published container
+<a class="reference external" href="https://developers.facebook.com/docs/threads/posts#step-2--publish-a-threads-media-container">https://developers.facebook.com/docs/threads/posts#step-2–publish-a-threads-media-container</a>
+<a class="reference external" href="https://developers.facebook.com/docs/threads/posts#step-3--publish-the-carousel-container">https://developers.facebook.com/docs/threads/posts#step-3–publish-the-carousel-container</a></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>OAuth2Error</strong> – If there was an issue with the OAuth2 authentication</p></li>
+<li><p><a class="reference internal" href="#pythreads.threads.ThreadsAccessTokenExpired" title="pythreads.threads.ThreadsAccessTokenExpired"><strong>ThreadsAccessTokenExpired</strong></a> – If the user’s token has expired</p></li>
+<li><p><a class="reference internal" href="#pythreads.threads.ThreadsAuthenticationError" title="pythreads.threads.ThreadsAuthenticationError"><strong>ThreadsAuthenticationError</strong></a> – If we receive an unexpected OAuth-related response from Threads</p></li>
+<li><p><a class="reference internal" href="#pythreads.api.ThreadsResponseError" title="pythreads.api.ThreadsResponseError"><strong>ThreadsResponseError</strong></a> – If we receive an unexpected response from Threads</p></li>
+<li><p><strong>RuntimeError</strong> – If the session is missing</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.api.API.publishing_limit">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">publishing_limit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#pythreads.api.API.publishing_limit" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.api.API.replies">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">replies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.api.API.replies" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pythreads.api.API.session">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">session</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClientSession</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#pythreads.api.API.session" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.api.API.thread">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.api.API.thread" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.api.API.threads">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">threads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">since</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">until</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.api.API.threads" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.api.API.user_insights">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">user_insights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'views'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'likes'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'replies'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'reposts'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'quotes'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'followers_count'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'follower_demographics'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'views'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'likes'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'replies'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'reposts'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'quotes'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'followers_count'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'follower_demographics'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">since</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">until</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">breakdown</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'age'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'city'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'country'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'gender'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#pythreads.api.API.user_insights" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pythreads.api.ContainerStatus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pythreads.api.</span></span><span class="sig-name descname"><span class="pre">ContainerStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pythreads.api.PublishingStatus" title="pythreads.api.PublishingStatus"><span class="pre">pythreads.api.PublishingStatus</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pythreads.api.PublishingError" title="pythreads.api.PublishingError"><span class="pre">pythreads.api.PublishingError</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.api.ContainerStatus" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.ContainerStatus.error">
+<span class="sig-name descname"><span class="pre">error</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pythreads.api.PublishingError" title="pythreads.api.PublishingError"><span class="pre">PublishingError</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#pythreads.api.ContainerStatus.error" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.ContainerStatus.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pythreads.api.ContainerStatus.id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.ContainerStatus.status">
+<span class="sig-name descname"><span class="pre">status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pythreads.api.PublishingStatus" title="pythreads.api.PublishingStatus"><span class="pre">PublishingStatus</span></a></em><a class="headerlink" href="#pythreads.api.ContainerStatus.status" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pythreads.api.Media">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pythreads.api.</span></span><span class="sig-name descname"><span class="pre">Media</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pythreads.api.MediaType" title="pythreads.api.MediaType"><span class="pre">pythreads.api.MediaType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.api.Media" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.Media.type">
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pythreads.api.MediaType" title="pythreads.api.MediaType"><span class="pre">MediaType</span></a></em><a class="headerlink" href="#pythreads.api.Media.type" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.Media.url">
+<span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pythreads.api.Media.url" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pythreads.api.MediaType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pythreads.api.</span></span><span class="sig-name descname"><span class="pre">MediaType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.api.MediaType" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.MediaType.CAROUSEL">
+<span class="sig-name descname"><span class="pre">CAROUSEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'CAROUSEL'</span></em><a class="headerlink" href="#pythreads.api.MediaType.CAROUSEL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.MediaType.IMAGE">
+<span class="sig-name descname"><span class="pre">IMAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IMAGE'</span></em><a class="headerlink" href="#pythreads.api.MediaType.IMAGE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.MediaType.TEXT">
+<span class="sig-name descname"><span class="pre">TEXT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'TEXT'</span></em><a class="headerlink" href="#pythreads.api.MediaType.TEXT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.MediaType.VIDEO">
+<span class="sig-name descname"><span class="pre">VIDEO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'VIDEO'</span></em><a class="headerlink" href="#pythreads.api.MediaType.VIDEO" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pythreads.api.PublishingError">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pythreads.api.</span></span><span class="sig-name descname"><span class="pre">PublishingError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.api.PublishingError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.PublishingError.FAILED_DOWNLOADING_VIDEO">
+<span class="sig-name descname"><span class="pre">FAILED_DOWNLOADING_VIDEO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FAILED_DOWNLOADING_VIDEO'</span></em><a class="headerlink" href="#pythreads.api.PublishingError.FAILED_DOWNLOADING_VIDEO" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.PublishingError.FAILED_PROCESSING_AUDIO">
+<span class="sig-name descname"><span class="pre">FAILED_PROCESSING_AUDIO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FAILED_PROCESSING_AUDIO'</span></em><a class="headerlink" href="#pythreads.api.PublishingError.FAILED_PROCESSING_AUDIO" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.PublishingError.FAILED_PROCESSING_VIDEO">
+<span class="sig-name descname"><span class="pre">FAILED_PROCESSING_VIDEO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FAILED_PROCESSING_VIDEO'</span></em><a class="headerlink" href="#pythreads.api.PublishingError.FAILED_PROCESSING_VIDEO" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.PublishingError.INVALID_ASPEC_RATIO">
+<span class="sig-name descname"><span class="pre">INVALID_ASPEC_RATIO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INVALID_ASPEC_RATIO'</span></em><a class="headerlink" href="#pythreads.api.PublishingError.INVALID_ASPEC_RATIO" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.PublishingError.INVALID_AUDIO_CHANNELS">
+<span class="sig-name descname"><span class="pre">INVALID_AUDIO_CHANNELS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INVALID_AUDIO_CHANNELS'</span></em><a class="headerlink" href="#pythreads.api.PublishingError.INVALID_AUDIO_CHANNELS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.PublishingError.INVALID_AUDIO_CHANNEL_LAYOUT">
+<span class="sig-name descname"><span class="pre">INVALID_AUDIO_CHANNEL_LAYOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INVALID_AUDIO_CHANNEL_LAYOUT'</span></em><a class="headerlink" href="#pythreads.api.PublishingError.INVALID_AUDIO_CHANNEL_LAYOUT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.PublishingError.INVALID_BIT_RATE">
+<span class="sig-name descname"><span class="pre">INVALID_BIT_RATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INVALID_BIT_RATE'</span></em><a class="headerlink" href="#pythreads.api.PublishingError.INVALID_BIT_RATE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.PublishingError.INVALID_DURATION">
+<span class="sig-name descname"><span class="pre">INVALID_DURATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INVALID_DURATION'</span></em><a class="headerlink" href="#pythreads.api.PublishingError.INVALID_DURATION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.PublishingError.INVALID_FRAME_RATE">
+<span class="sig-name descname"><span class="pre">INVALID_FRAME_RATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'INVALID_FRAME_RATE'</span></em><a class="headerlink" href="#pythreads.api.PublishingError.INVALID_FRAME_RATE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.PublishingError.UNKNOWN">
+<span class="sig-name descname"><span class="pre">UNKNOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'UNKNOWN'</span></em><a class="headerlink" href="#pythreads.api.PublishingError.UNKNOWN" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pythreads.api.PublishingStatus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pythreads.api.</span></span><span class="sig-name descname"><span class="pre">PublishingStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.api.PublishingStatus" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.PublishingStatus.ERROR">
+<span class="sig-name descname"><span class="pre">ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ERROR'</span></em><a class="headerlink" href="#pythreads.api.PublishingStatus.ERROR" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.PublishingStatus.EXPIRED">
+<span class="sig-name descname"><span class="pre">EXPIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'EXPIRED'</span></em><a class="headerlink" href="#pythreads.api.PublishingStatus.EXPIRED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.PublishingStatus.FINISHED">
+<span class="sig-name descname"><span class="pre">FINISHED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'FINISHED'</span></em><a class="headerlink" href="#pythreads.api.PublishingStatus.FINISHED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.PublishingStatus.IN_PROGRESS">
+<span class="sig-name descname"><span class="pre">IN_PROGRESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IN_PROGRESS'</span></em><a class="headerlink" href="#pythreads.api.PublishingStatus.IN_PROGRESS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.PublishingStatus.PUBLISHED">
+<span class="sig-name descname"><span class="pre">PUBLISHED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PUBLISHED'</span></em><a class="headerlink" href="#pythreads.api.PublishingStatus.PUBLISHED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pythreads.api.ReplyControl">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pythreads.api.</span></span><span class="sig-name descname"><span class="pre">ReplyControl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.api.ReplyControl" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.ReplyControl.ACCOUNTS_YOU_FOLLOW">
+<span class="sig-name descname"><span class="pre">ACCOUNTS_YOU_FOLLOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'accounts_you_follow'</span></em><a class="headerlink" href="#pythreads.api.ReplyControl.ACCOUNTS_YOU_FOLLOW" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.ReplyControl.EVERYONE">
+<span class="sig-name descname"><span class="pre">EVERYONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'everyone'</span></em><a class="headerlink" href="#pythreads.api.ReplyControl.EVERYONE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.api.ReplyControl.MENTIONED_ONLY">
+<span class="sig-name descname"><span class="pre">MENTIONED_ONLY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mentioned_only'</span></em><a class="headerlink" href="#pythreads.api.ReplyControl.MENTIONED_ONLY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="pythreads.api.ThreadsInvalidParameter">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pythreads.api.</span></span><span class="sig-name descname"><span class="pre">ThreadsInvalidParameter</span></span><a class="headerlink" href="#pythreads.api.ThreadsInvalidParameter" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="pythreads.api.ThreadsResponseError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pythreads.api.</span></span><span class="sig-name descname"><span class="pre">ThreadsResponseError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.api.ThreadsResponseError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+</section>
+<section id="module-pythreads.configuration">
+<span id="configuration-module"></span><h1>Configuration Module<a class="headerlink" href="#module-pythreads.configuration" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pythreads.configuration.Configuration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pythreads.configuration.</span></span><span class="sig-name descname"><span class="pre">Configuration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scopes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_secret</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redirect_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.configuration.Configuration" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.configuration.Configuration.api_secret">
+<span class="sig-name descname"><span class="pre">api_secret</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pythreads.configuration.Configuration.api_secret" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.configuration.Configuration.app_id">
+<span class="sig-name descname"><span class="pre">app_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pythreads.configuration.Configuration.app_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.configuration.Configuration.redirect_uri">
+<span class="sig-name descname"><span class="pre">redirect_uri</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pythreads.configuration.Configuration.redirect_uri" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.configuration.Configuration.scopes">
+<span class="sig-name descname"><span class="pre">scopes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pythreads.configuration.Configuration.scopes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.configuration.Configuration.scopes_str">
+<span class="sig-name descname"><span class="pre">scopes_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.configuration.Configuration.scopes_str" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pythreads.credentials">
+<span id="credentials-module"></span><h1>Credentials Module<a class="headerlink" href="#module-pythreads.credentials" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pythreads.credentials.Credentials">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pythreads.credentials.</span></span><span class="sig-name descname"><span class="pre">Credentials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scopes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'List[str]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short_lived</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'bool'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'datetime'</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.credentials.Credentials" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.credentials.Credentials.access_token">
+<span class="sig-name descname"><span class="pre">access_token</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pythreads.credentials.Credentials.access_token" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.credentials.Credentials.expiration">
+<span class="sig-name descname"><span class="pre">expiration</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime</span></em><a class="headerlink" href="#pythreads.credentials.Credentials.expiration" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.credentials.Credentials.expired">
+<span class="sig-name descname"><span class="pre">expired</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#pythreads.credentials.Credentials.expired" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.credentials.Credentials.expires_in">
+<span class="sig-name descname"><span class="pre">expires_in</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#pythreads.credentials.Credentials.expires_in" title="Link to this definition">¶</a></dt>
+<dd><p>Number of seconds before these credentials’ access token expires.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.credentials.Credentials.from_json">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pythreads.credentials.Credentials" title="pythreads.credentials.Credentials"><span class="pre">Credentials</span></a></span></span><a class="headerlink" href="#pythreads.credentials.Credentials.from_json" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.credentials.Credentials.scopes">
+<span class="sig-name descname"><span class="pre">scopes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pythreads.credentials.Credentials.scopes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.credentials.Credentials.short_lived">
+<span class="sig-name descname"><span class="pre">short_lived</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#pythreads.credentials.Credentials.short_lived" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.credentials.Credentials.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pythreads.credentials.Credentials.to_json" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.credentials.Credentials.user_id">
+<span class="sig-name descname"><span class="pre">user_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pythreads.credentials.Credentials.user_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pythreads.threads">
+<span id="threads-module"></span><h1>Threads Module<a class="headerlink" href="#module-pythreads.threads" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pythreads.threads.Threads">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pythreads.threads.</span></span><span class="sig-name descname"><span class="pre">Threads</span></span><a class="headerlink" href="#pythreads.threads.Threads" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pythreads.threads.Threads.ALL_SCOPES">
+<span class="sig-name descname"><span class="pre">ALL_SCOPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['threads_basic',</span> <span class="pre">'threads_content_publish',</span> <span class="pre">'threads_manage_insights',</span> <span class="pre">'threads_manage_replies',</span> <span class="pre">'threads_read_replies']</span></em><a class="headerlink" href="#pythreads.threads.Threads.ALL_SCOPES" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.threads.Threads.authorization_url">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">authorization_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pythreads.configuration.Configuration" title="pythreads.configuration.Configuration"><span class="pre">Configuration</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pythreads.threads.Threads.authorization_url" title="Link to this definition">¶</a></dt>
+<dd><p>Constructs an <cite>authorization_url</cite> and opaque <cite>state</cite> value.</p>
+<p>You must store the <cite>state</cite> value in the user’s session so that you can
+retrieve it later and redirect the user to the <cite>authorization_url</cite>.
+When the user is redirected back to your <cite>redirect_uri</cite>, you will
+validate the authentication using <cite>complete_authentication</cite>.</p>
+<p>If you do not pass a Threads.Configuration instance, this method will
+load with the default configuration of all scopes and the THREADS_APP_ID,
+THREADS_API_SECRET, and THREADS_REDIRECT_URI environment variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> – [optional] A Threads.Configuration instance</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple of (authorization_url, state), both being strings.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>OAuth2Error</strong> – An error occured in the OAuth2 flow. Check the
+    <cite>error</cite> and <cite>description</cite> fields for more info.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.threads.Threads.build_graph_api_url">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_graph_api_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pythreads.threads.Threads.build_graph_api_url" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.threads.Threads.complete_authorization">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">complete_authorization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long_lived_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pythreads.configuration.Configuration" title="pythreads.configuration.Configuration"><span class="pre">Configuration</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pythreads.credentials.Credentials" title="pythreads.credentials.Credentials"><span class="pre">Credentials</span></a></span></span><a class="headerlink" href="#pythreads.threads.Threads.complete_authorization" title="Link to this definition">¶</a></dt>
+<dd><p>state: the state string that was returned from the <cite>authorization_url</cite> method</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.threads.Threads.fetch_long_lived_token">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_long_lived_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pythreads.configuration.Configuration" title="pythreads.configuration.Configuration"><span class="pre">Configuration</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">datetime</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pythreads.threads.Threads.fetch_long_lived_token" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.threads.Threads.fetch_user_id_and_token">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_user_id_and_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pythreads.configuration.Configuration" title="pythreads.configuration.Configuration"><span class="pre">Configuration</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">datetime</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pythreads.threads.Threads.fetch_user_id_and_token" title="Link to this definition">¶</a></dt>
+<dd><p>Exchanges authorization code for a short-lived OAuth2 API token (valid for 1 hour).</p>
+<p>Once you have redirected the user to the URL generated by the
+<cite>authorization_url</cite> method, Threads will redirect the user back to
+your <cite>redirect_uri</cite>, appending several request parameters to the
+URL. Call this method with that full request URL. It will extract
+the authorization code and state parameters, verify the state
+parameter to protect against CSRF attacks, and then call the
+Threads API to exchange the authorization code for a token.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request_url</strong> – the full request URL made by Threads to your redirect_uri</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple of (user_id, access_token, access_token_expiration)</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>OAuth2Error</strong> – An error occured in the OAuth2 flow. Check the
+    <cite>error</cite> and <cite>description</cite> fields for more info.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.threads.Threads.load_configuration">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_configuration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scopes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_secret</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redirect_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pythreads.configuration.Configuration" title="pythreads.configuration.Configuration"><span class="pre">Configuration</span></a></span></span><a class="headerlink" href="#pythreads.threads.Threads.load_configuration" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pythreads.threads.Threads.refresh_long_lived_token">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">refresh_long_lived_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">credentials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pythreads.credentials.Credentials" title="pythreads.credentials.Credentials"><span class="pre">Credentials</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">datetime</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pythreads.threads.Threads.refresh_long_lived_token" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="pythreads.threads.ThreadsAccessTokenExpired">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pythreads.threads.</span></span><span class="sig-name descname"><span class="pre">ThreadsAccessTokenExpired</span></span><a class="headerlink" href="#pythreads.threads.ThreadsAccessTokenExpired" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeError</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="pythreads.threads.ThreadsAuthenticationError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pythreads.threads.</span></span><span class="sig-name descname"><span class="pre">ThreadsAuthenticationError</span></span><a class="headerlink" href="#pythreads.threads.ThreadsAuthenticationError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeError</span></code></p>
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Home</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Marc Love
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">API Module</a><ul>
+<li><a class="reference internal" href="#pythreads.api.API"><code class="docutils literal notranslate"><span class="pre">API</span></code></a><ul>
+<li><a class="reference internal" href="#pythreads.api.API.account"><code class="docutils literal notranslate"><span class="pre">API.account()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.API.container"><code class="docutils literal notranslate"><span class="pre">API.container()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.API.container_status"><code class="docutils literal notranslate"><span class="pre">API.container_status()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.API.conversation"><code class="docutils literal notranslate"><span class="pre">API.conversation()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.API.create_carousel_container"><code class="docutils literal notranslate"><span class="pre">API.create_carousel_container()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.API.create_container"><code class="docutils literal notranslate"><span class="pre">API.create_container()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.API.insights"><code class="docutils literal notranslate"><span class="pre">API.insights()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.API.manage_reply"><code class="docutils literal notranslate"><span class="pre">API.manage_reply()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.API.publish_container"><code class="docutils literal notranslate"><span class="pre">API.publish_container()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.API.publishing_limit"><code class="docutils literal notranslate"><span class="pre">API.publishing_limit()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.API.replies"><code class="docutils literal notranslate"><span class="pre">API.replies()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.API.session"><code class="docutils literal notranslate"><span class="pre">API.session</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.API.thread"><code class="docutils literal notranslate"><span class="pre">API.thread()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.API.threads"><code class="docutils literal notranslate"><span class="pre">API.threads()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.API.user_insights"><code class="docutils literal notranslate"><span class="pre">API.user_insights()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pythreads.api.ContainerStatus"><code class="docutils literal notranslate"><span class="pre">ContainerStatus</span></code></a><ul>
+<li><a class="reference internal" href="#pythreads.api.ContainerStatus.error"><code class="docutils literal notranslate"><span class="pre">ContainerStatus.error</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.ContainerStatus.id"><code class="docutils literal notranslate"><span class="pre">ContainerStatus.id</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.ContainerStatus.status"><code class="docutils literal notranslate"><span class="pre">ContainerStatus.status</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pythreads.api.Media"><code class="docutils literal notranslate"><span class="pre">Media</span></code></a><ul>
+<li><a class="reference internal" href="#pythreads.api.Media.type"><code class="docutils literal notranslate"><span class="pre">Media.type</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.Media.url"><code class="docutils literal notranslate"><span class="pre">Media.url</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pythreads.api.MediaType"><code class="docutils literal notranslate"><span class="pre">MediaType</span></code></a><ul>
+<li><a class="reference internal" href="#pythreads.api.MediaType.CAROUSEL"><code class="docutils literal notranslate"><span class="pre">MediaType.CAROUSEL</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.MediaType.IMAGE"><code class="docutils literal notranslate"><span class="pre">MediaType.IMAGE</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.MediaType.TEXT"><code class="docutils literal notranslate"><span class="pre">MediaType.TEXT</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.MediaType.VIDEO"><code class="docutils literal notranslate"><span class="pre">MediaType.VIDEO</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pythreads.api.PublishingError"><code class="docutils literal notranslate"><span class="pre">PublishingError</span></code></a><ul>
+<li><a class="reference internal" href="#pythreads.api.PublishingError.FAILED_DOWNLOADING_VIDEO"><code class="docutils literal notranslate"><span class="pre">PublishingError.FAILED_DOWNLOADING_VIDEO</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.PublishingError.FAILED_PROCESSING_AUDIO"><code class="docutils literal notranslate"><span class="pre">PublishingError.FAILED_PROCESSING_AUDIO</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.PublishingError.FAILED_PROCESSING_VIDEO"><code class="docutils literal notranslate"><span class="pre">PublishingError.FAILED_PROCESSING_VIDEO</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.PublishingError.INVALID_ASPEC_RATIO"><code class="docutils literal notranslate"><span class="pre">PublishingError.INVALID_ASPEC_RATIO</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.PublishingError.INVALID_AUDIO_CHANNELS"><code class="docutils literal notranslate"><span class="pre">PublishingError.INVALID_AUDIO_CHANNELS</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.PublishingError.INVALID_AUDIO_CHANNEL_LAYOUT"><code class="docutils literal notranslate"><span class="pre">PublishingError.INVALID_AUDIO_CHANNEL_LAYOUT</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.PublishingError.INVALID_BIT_RATE"><code class="docutils literal notranslate"><span class="pre">PublishingError.INVALID_BIT_RATE</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.PublishingError.INVALID_DURATION"><code class="docutils literal notranslate"><span class="pre">PublishingError.INVALID_DURATION</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.PublishingError.INVALID_FRAME_RATE"><code class="docutils literal notranslate"><span class="pre">PublishingError.INVALID_FRAME_RATE</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.PublishingError.UNKNOWN"><code class="docutils literal notranslate"><span class="pre">PublishingError.UNKNOWN</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pythreads.api.PublishingStatus"><code class="docutils literal notranslate"><span class="pre">PublishingStatus</span></code></a><ul>
+<li><a class="reference internal" href="#pythreads.api.PublishingStatus.ERROR"><code class="docutils literal notranslate"><span class="pre">PublishingStatus.ERROR</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.PublishingStatus.EXPIRED"><code class="docutils literal notranslate"><span class="pre">PublishingStatus.EXPIRED</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.PublishingStatus.FINISHED"><code class="docutils literal notranslate"><span class="pre">PublishingStatus.FINISHED</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.PublishingStatus.IN_PROGRESS"><code class="docutils literal notranslate"><span class="pre">PublishingStatus.IN_PROGRESS</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.PublishingStatus.PUBLISHED"><code class="docutils literal notranslate"><span class="pre">PublishingStatus.PUBLISHED</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pythreads.api.ReplyControl"><code class="docutils literal notranslate"><span class="pre">ReplyControl</span></code></a><ul>
+<li><a class="reference internal" href="#pythreads.api.ReplyControl.ACCOUNTS_YOU_FOLLOW"><code class="docutils literal notranslate"><span class="pre">ReplyControl.ACCOUNTS_YOU_FOLLOW</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.ReplyControl.EVERYONE"><code class="docutils literal notranslate"><span class="pre">ReplyControl.EVERYONE</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.ReplyControl.MENTIONED_ONLY"><code class="docutils literal notranslate"><span class="pre">ReplyControl.MENTIONED_ONLY</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pythreads.api.ThreadsInvalidParameter"><code class="docutils literal notranslate"><span class="pre">ThreadsInvalidParameter</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.api.ThreadsResponseError"><code class="docutils literal notranslate"><span class="pre">ThreadsResponseError</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pythreads.configuration">Configuration Module</a><ul>
+<li><a class="reference internal" href="#pythreads.configuration.Configuration"><code class="docutils literal notranslate"><span class="pre">Configuration</span></code></a><ul>
+<li><a class="reference internal" href="#pythreads.configuration.Configuration.api_secret"><code class="docutils literal notranslate"><span class="pre">Configuration.api_secret</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.configuration.Configuration.app_id"><code class="docutils literal notranslate"><span class="pre">Configuration.app_id</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.configuration.Configuration.redirect_uri"><code class="docutils literal notranslate"><span class="pre">Configuration.redirect_uri</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.configuration.Configuration.scopes"><code class="docutils literal notranslate"><span class="pre">Configuration.scopes</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.configuration.Configuration.scopes_str"><code class="docutils literal notranslate"><span class="pre">Configuration.scopes_str()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pythreads.credentials">Credentials Module</a><ul>
+<li><a class="reference internal" href="#pythreads.credentials.Credentials"><code class="docutils literal notranslate"><span class="pre">Credentials</span></code></a><ul>
+<li><a class="reference internal" href="#pythreads.credentials.Credentials.access_token"><code class="docutils literal notranslate"><span class="pre">Credentials.access_token</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.credentials.Credentials.expiration"><code class="docutils literal notranslate"><span class="pre">Credentials.expiration</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.credentials.Credentials.expired"><code class="docutils literal notranslate"><span class="pre">Credentials.expired()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.credentials.Credentials.expires_in"><code class="docutils literal notranslate"><span class="pre">Credentials.expires_in()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.credentials.Credentials.from_json"><code class="docutils literal notranslate"><span class="pre">Credentials.from_json()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.credentials.Credentials.scopes"><code class="docutils literal notranslate"><span class="pre">Credentials.scopes</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.credentials.Credentials.short_lived"><code class="docutils literal notranslate"><span class="pre">Credentials.short_lived</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.credentials.Credentials.to_json"><code class="docutils literal notranslate"><span class="pre">Credentials.to_json()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.credentials.Credentials.user_id"><code class="docutils literal notranslate"><span class="pre">Credentials.user_id</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pythreads.threads">Threads Module</a><ul>
+<li><a class="reference internal" href="#pythreads.threads.Threads"><code class="docutils literal notranslate"><span class="pre">Threads</span></code></a><ul>
+<li><a class="reference internal" href="#pythreads.threads.Threads.ALL_SCOPES"><code class="docutils literal notranslate"><span class="pre">Threads.ALL_SCOPES</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.threads.Threads.authorization_url"><code class="docutils literal notranslate"><span class="pre">Threads.authorization_url()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.threads.Threads.build_graph_api_url"><code class="docutils literal notranslate"><span class="pre">Threads.build_graph_api_url()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.threads.Threads.complete_authorization"><code class="docutils literal notranslate"><span class="pre">Threads.complete_authorization()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.threads.Threads.fetch_long_lived_token"><code class="docutils literal notranslate"><span class="pre">Threads.fetch_long_lived_token()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.threads.Threads.fetch_user_id_and_token"><code class="docutils literal notranslate"><span class="pre">Threads.fetch_user_id_and_token()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.threads.Threads.load_configuration"><code class="docutils literal notranslate"><span class="pre">Threads.load_configuration()</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.threads.Threads.refresh_long_lived_token"><code class="docutils literal notranslate"><span class="pre">Threads.refresh_long_lived_token()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pythreads.threads.ThreadsAccessTokenExpired"><code class="docutils literal notranslate"><span class="pre">ThreadsAccessTokenExpired</span></code></a></li>
+<li><a class="reference internal" href="#pythreads.threads.ThreadsAuthenticationError"><code class="docutils literal notranslate"><span class="pre">ThreadsAuthenticationError</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=4e2eecee"></script>
+    </body>
+</html>
