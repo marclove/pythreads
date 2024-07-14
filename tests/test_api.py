@@ -89,7 +89,7 @@ class APITest(unittest.IsolatedAsyncioTestCase):
 
     @patch("aiohttp.ClientSession.get")
     @patch("pythreads.api.Threads.build_graph_api_url")
-    async def test_account(self, mock_build_graph_api_url, mock_get):
+    async def test_account_default_user(self, mock_build_graph_api_url, mock_get):
         expected = {"username": self.credentials.user_id}
         mock_response(mock_get, expected)
         mock_build_graph_api_url.return_value = "https://some-uri.com"
@@ -98,6 +98,33 @@ class APITest(unittest.IsolatedAsyncioTestCase):
 
         mock_build_graph_api_url.assert_called_once_with(
             "me",
+            {
+                "fields": ",".join(
+                    [
+                        "threads_biography",
+                        "threads_profile_picture_url",
+                        "username",
+                    ]
+                )
+            },
+            "someaccesstoken",
+        )
+
+        mock_get.assert_called_once_with("https://some-uri.com")
+
+        self.assertEqual(actual, expected)
+
+    @patch("aiohttp.ClientSession.get")
+    @patch("pythreads.api.Threads.build_graph_api_url")
+    async def test_account_with_user(self, mock_build_graph_api_url, mock_get):
+        expected = {"username": self.credentials.user_id}
+        mock_response(mock_get, expected)
+        mock_build_graph_api_url.return_value = "https://some-uri.com"
+
+        actual = await self.api.account("someuserid")
+
+        mock_build_graph_api_url.assert_called_once_with(
+            "someuserid",
             {
                 "fields": ",".join(
                     [
