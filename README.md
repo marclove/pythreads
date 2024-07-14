@@ -4,6 +4,8 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pythreads.svg)](https://pypi.org/project/pythreads)
 ![Code Coverage](https://img.shields.io/badge/coverage-93%25-brightgreen)
 
+[Official Documentation](https://marclove.com/pythreads)
+
 PyThreads is a Python wrapper for Meta's Threads API. It is still in beta, 
 but is well-tested and covers all the published endpoints documented by Meta.
 
