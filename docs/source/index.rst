@@ -1,4 +1,4 @@
-Welcome to PyThreads's documentation!
+Welcome to PyThreads' documentation!
 =====================================
 
 .. toctree::
