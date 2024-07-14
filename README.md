@@ -171,9 +171,6 @@ session.close()
 
 ## API Methods
 
-Better documentation is coming, but for now, you can browse the methods
-in [api.py](src/pythreads/api.py).
-
 Most of the methods follow [Meta's API](https://developers.facebook.com/docs/threads)
 closely, with required/optional arguments matching API required/optional
 parameters.
