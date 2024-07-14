@@ -215,11 +215,15 @@ class API:
         async with self.session.post(url) as response:
             return await response.json()
 
-    async def account(self) -> Any:
+    async def account(self, user_id: str = "me") -> Any:
+        """Retrieve a Threads User's Profile Information
+
+        [Threads Docs](https://developers.facebook.com/docs/threads/threads-profiles)
+        """
         access_token = self._access_token()
 
         url = Threads.build_graph_api_url(
-            "me",
+            user_id,
             {
                 PARAMS__FIELDS: ",".join(
                     [
