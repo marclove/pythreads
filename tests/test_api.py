@@ -928,7 +928,13 @@ class APITest(unittest.IsolatedAsyncioTestCase):
         since = date(2024, 5, 1)
         until = date(2024, 6, 1)
 
-        actual = await self.api.threads(since=since, until=until, limit=10)
+        actual = await self.api.threads(
+            since=since,
+            until=until,
+            before="beforecursor",
+            after="aftercursor",
+            limit=10,
+        )
 
         mock_build_graph_api_url.assert_called_once_with(
             f"{self.credentials.user_id}/threads",
@@ -952,6 +958,8 @@ class APITest(unittest.IsolatedAsyncioTestCase):
                 ),
                 "since": "2024-05-01",
                 "until": "2024-06-01",
+                "before": "beforecursor",
+                "after": "aftercursor",
                 "limit": "10",
             },
             "someaccesstoken",
@@ -1096,7 +1104,9 @@ class APITest(unittest.IsolatedAsyncioTestCase):
         mock_response(mock_get, expected)
         mock_build_graph_api_url.return_value = "https://some-uri.com"
 
-        actual = await self.api.conversation("someid")
+        actual = await self.api.conversation(
+            "someid", before="beforecursor", after="aftercursor"
+        )
 
         mock_build_graph_api_url.assert_called_once_with(
             "someid/conversation",
@@ -1117,7 +1127,9 @@ class APITest(unittest.IsolatedAsyncioTestCase):
                         "timestamp",
                         "username",
                     ]
-                )
+                ),
+                "before": "beforecursor",
+                "after": "aftercursor",
             },
             "someaccesstoken",
         )

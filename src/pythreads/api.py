@@ -85,6 +85,8 @@ MEDIA_TYPE__TEXT = "TEXT"
 MEDIA_TYPE__VIDEO = "VIDEO"
 
 PARAMS__ACCESS_TOKEN = "access_token"
+PARAMS__AFTER = "after"
+PARAMS__BEFORE = "before"
 PARAMS__CHILDREN = "children"
 PARAMS__CLIENT_ID = "client_id"
 PARAMS__CONFIG = "config"
@@ -651,15 +653,30 @@ class API:
         since: Optional[Union[date, str]] = None,
         until: Optional[Union[date, str]] = None,
         limit: Optional[int] = None,
+        before: Optional[str] = None,
+        after: Optional[str] = None,
     ):
         """A paginated list of all threads created by the user
 
+        Returns a paginated list of threads made by the user, including reposts.
+        The number of threads returned is controlled by `limit`. The window of
+        threads being queried is controlled by `since` and `until`. To
+        paginate through that window, you use the `before` and `after` cursors
+        returned in the response to request the next page. The `after` value
+        that is returned in the response can be supplied to the `after` argument
+        and it will retrieve the next page in the paginated list. The reverse
+        direction is true for the `before value`.
+
         https://developers.facebook.com/docs/threads/threads-media#retrieve-a-list-of-all-a-user-s-threads
+
 
         Args:
             since: [optional] The starting `date` of the time window you are requesting
             until: [optional] The ending `date` of the time window you are requesting
             limit: [optional] The maximum number of threads to return. Defaults to 25.
+            before: [optional] A before cursor for pagination that was returned from a previous request
+            after: [optional] An after cursor for pagination that was returned from a previous request
+
         Returns:
             The JSON response as a dict
 
@@ -706,6 +723,12 @@ class API:
 
         if limit:
             params[PARAMS__LIMIT] = f"{limit}"
+
+        if before:
+            params[PARAMS__BEFORE] = before
+
+        if after:
+            params[PARAMS__AFTER] = after
 
         url = Threads.build_graph_api_url(f"{user_id}/threads", params, access_token)
         return await self._get(url)
@@ -754,9 +777,29 @@ class API:
 
         return await self._get(url)
 
-    async def conversation(self, thread_id: str):
+    async def conversation(
+        self,
+        thread_id: str,
+        before: Optional[str] = None,
+        after: Optional[str] = None,
+    ):
         """Returns a paginated and flattened list of all top-level and nested replies of the requested `thread_id`
+
+        Applicable to specific use cases that do not focus on the knowledge of
+        the depthness of the replies. This endpoint is only intended to be used
+        on the root-level threads with replies. To paginate through the replies,
+        you use the `before` and `after` cursors returned in the response to
+        request the next page. The `after` value that is returned in the
+        response can be supplied to the `after` argument and it will retrieve
+        the next page in the paginated list. The reverse direction is true
+        for the `before value`.
+
         https://developers.facebook.com/docs/threads/reply-management#conversations
+
+        Args:
+            thread_id: The id of the thread whose replies you want to retrieve
+            before: [optional] A before cursor for pagination that was returned from a previous request
+            after: [optional] An after cursor for pagination that was returned from a previous request
 
         Returns:
             The JSON response as a dict
@@ -768,28 +811,34 @@ class API:
 
         access_token = self._access_token()
 
+        params = {
+            PARAMS__FIELDS: ",".join(
+                [
+                    FIELD__CHILDREN,
+                    FIELD__ID,
+                    FIELD__IS_QUOTE_POST,
+                    FIELD__MEDIA_PRODUCT_TYPE,
+                    FIELD__MEDIA_TYPE,
+                    FIELD__MEDIA_URL,
+                    FIELD__OWNER,
+                    FIELD__PERMALINK,
+                    FIELD__SHORTCODE,
+                    FIELD__TEXT,
+                    FIELD__THUMBNAIL_URL,
+                    FIELD__TIMESTAMP,
+                    FIELD__USERNAME,
+                ]
+            )
+        }
+
+        if before:
+            params[PARAMS__BEFORE] = before
+
+        if after:
+            params[PARAMS__AFTER] = after
+
         url = Threads.build_graph_api_url(
-            f"{thread_id}/conversation",
-            {
-                PARAMS__FIELDS: ",".join(
-                    [
-                        FIELD__CHILDREN,
-                        FIELD__ID,
-                        FIELD__IS_QUOTE_POST,
-                        FIELD__MEDIA_PRODUCT_TYPE,
-                        FIELD__MEDIA_TYPE,
-                        FIELD__MEDIA_URL,
-                        FIELD__OWNER,
-                        FIELD__PERMALINK,
-                        FIELD__SHORTCODE,
-                        FIELD__TEXT,
-                        FIELD__THUMBNAIL_URL,
-                        FIELD__TIMESTAMP,
-                        FIELD__USERNAME,
-                    ]
-                )
-            },
-            access_token,
+            f"{thread_id}/conversation", params, access_token
         )
 
         return await self._get(url)
