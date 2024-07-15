@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import unittest
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from unittest.mock import ANY, AsyncMock, MagicMock, call, patch
 
@@ -925,9 +925,10 @@ class APITest(unittest.IsolatedAsyncioTestCase):
         mock_response(mock_get, expected)
         mock_build_graph_api_url.return_value = "https://some-uri.com"
 
-        actual = await self.api.threads(
-            since="2024-05-01", until="2024-06-01", limit=10
-        )
+        since = date(2024, 5, 1)
+        until = date(2024, 6, 1)
+
+        actual = await self.api.threads(since=since, until=until, limit=10)
 
         mock_build_graph_api_url.assert_called_once_with(
             f"{self.credentials.user_id}/threads",

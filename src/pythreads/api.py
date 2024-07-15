@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 from json import JSONEncoder
 from typing import Any, Dict, List, Literal, Optional, Union
@@ -648,13 +648,18 @@ class API:
 
     async def threads(
         self,
-        since: Optional[str] = None,
-        until: Optional[str] = None,
+        since: Optional[Union[date, str]] = None,
+        until: Optional[Union[date, str]] = None,
         limit: Optional[int] = None,
     ):
         """A paginated list of all threads created by the user
 
         https://developers.facebook.com/docs/threads/threads-media#retrieve-a-list-of-all-a-user-s-threads
+
+        Args:
+            since: [optional] The starting `date` of the time window you are requesting
+            until: [optional] The ending `date` of the time window you are requesting
+            limit: [optional] The maximum number of threads to return. Defaults to 25.
         Returns:
             The JSON response as a dict
 
@@ -687,10 +692,16 @@ class API:
             )
         }
 
+        # Handling string is legacy. Need to deprecate and remove.
         if since:
+            if isinstance(since, date):
+                since = since.isoformat()
             params[PARAMS__SINCE] = since
 
+        # Handling string is legacy. Need to deprecate and remove.
         if until:
+            if isinstance(until, date):
+                until = until.isoformat()
             params[PARAMS__UNTIL] = until
 
         if limit:
