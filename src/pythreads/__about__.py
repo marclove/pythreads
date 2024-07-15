@@ -1,4 +1,4 @@
 # SPDX-FileCopyrightText: 2024-present Marc Love <copyright@marclove.com>
 #
 # SPDX-License-Identifier: MIT
-__version__ = "0.2.0"
+__version__ = "0.2.1"
