@@ -218,7 +218,12 @@ class API:
     async def account(self, user_id: str = "me") -> Any:
         """Retrieve a Threads User's Profile Information
 
-        [Threads Docs](https://developers.facebook.com/docs/threads/threads-profiles)
+        https://developers.facebook.com/docs/threads/threads-profiles
+
+        Raises:
+            ThreadsAccessTokenExpired: If the user's token has expired
+            RuntimeError: If the session is missing
+
         """
         access_token = self._access_token()
 
@@ -245,6 +250,26 @@ class API:
         until: Optional[datetime] = None,
         breakdown: Optional[FollowerDemographicType] = None,
     ) -> Any:
+        """Retrieve the available user insights metrics
+
+        https://developers.facebook.com/docs/threads/insights#user-insights
+
+        Args:
+            metrics: The metric or metrics you want to retrieve (see linked official docs)
+            since: [optional] The starting datetime of the time window you are requesting
+            until: [optional] The ending datetime of the time window you are requesting
+            breakdown: [optional] Required when requesting follower_demographic metrics
+
+        Returns:
+            The JSON response as a dict
+
+        Raises:
+            ThreadsInvalidParameter: If you request a non-existent `metric` or
+                fail to provide `breakdown` when required
+            ThreadsAccessTokenExpired: If the user's token has expired
+            RuntimeError: If the session is missing
+        """
+
         access_token = self._access_token()
 
         # Ensure metrics is a list
@@ -292,6 +317,18 @@ class API:
         return await self._get(url)
 
     async def publishing_limit(self) -> Any:
+        """The user's current Threads API usage total
+
+        https://developers.facebook.com/docs/threads/troubleshooting#retrieve-publishing-quota-limit
+
+        Returns:
+            The JSON response as a dict
+
+        Raises:
+            ThreadsAccessTokenExpired: If the user's token has expired
+            RuntimeError: If the session is missing
+        """
+
         access_token = self._access_token()
 
         user_id = self.credentials.user_id
@@ -338,7 +375,9 @@ class API:
 
         Returns:
             The id of the published container
+
             https://developers.facebook.com/docs/threads/posts#step-2--publish-a-threads-media-container
+
             https://developers.facebook.com/docs/threads/posts#step-3--publish-the-carousel-container
 
         Raises:
@@ -462,6 +501,20 @@ class API:
             return response["id"]
 
     async def container_status(self, media_id: str) -> ContainerStatus:
+        """Gets the container's publishing status
+
+        https://developers.facebook.com/docs/threads/troubleshooting#publishing-does-not-return-a-media-id
+
+        Args:
+            media_id: The id of the container you want to know the status of
+
+        Returns:
+            A `ContainerStatus` object
+
+        Raises:
+            ThreadsAccessTokenExpired: If the user's token has expired
+            RuntimeError: If the session is missing
+        """
         access_token = self._access_token()
 
         url = Threads.build_graph_api_url(
@@ -501,7 +554,9 @@ class API:
 
         Returns:
             The id of the published container
+
             https://developers.facebook.com/docs/threads/posts#step-2--publish-a-threads-media-container
+
             https://developers.facebook.com/docs/threads/posts#step-3--publish-the-carousel-container
 
         Raises:
@@ -530,6 +585,21 @@ class API:
             return response["id"]
 
     async def container(self, container_id: str):
+        """Retrieve an individual Threads media object (aka container)
+
+        https://developers.facebook.com/docs/threads/threads-media#retrieve-a-single-threads-media-object
+
+        Args:
+            container_id: The id of the container you want to retrieve
+
+        Returns:
+            The JSON response as a dict
+
+        Raises:
+            ThreadsAccessTokenExpired: If the user's token has expired
+            RuntimeError: If the session is missing
+        """
+
         access_token = self._access_token()
 
         url = Threads.build_graph_api_url(
@@ -559,6 +629,21 @@ class API:
         return await self._get(url)
 
     async def thread(self, thread_id: str):
+        """Retrieve an individual thread
+
+        https://developers.facebook.com/docs/threads/threads-media#retrieve-a-single-threads-media-object
+
+        Args:
+            thread_id: The id of the thread you want to retrieve
+
+        Returns:
+            The JSON response as a dict
+
+        Raises:
+            ThreadsAccessTokenExpired: If the user's token has expired
+            RuntimeError: If the session is missing
+        """
+
         return await self.container(container_id=thread_id)
 
     async def threads(
@@ -567,6 +652,17 @@ class API:
         until: Optional[str] = None,
         limit: Optional[int] = None,
     ):
+        """A paginated list of all threads created by the user
+
+        https://developers.facebook.com/docs/threads/threads-media#retrieve-a-list-of-all-a-user-s-threads
+        Returns:
+            The JSON response as a dict
+
+        Raises:
+            ThreadsAccessTokenExpired: If the user's token has expired
+            RuntimeError: If the session is missing
+        """
+
         access_token = self._access_token()
 
         user_id = self.credentials.user_id
@@ -604,6 +700,21 @@ class API:
         return await self._get(url)
 
     async def replies(self, thread_id: str):
+        """Returns the immediate replies of the requested `thread_id`
+
+        https://developers.facebook.com/docs/threads/reply-management#replies
+
+        Args:
+            thread_id: The id of the thread whose immediate replies you want to retrieve
+
+        Returns:
+            The JSON response as a dict
+
+        Raises:
+            ThreadsAccessTokenExpired: If the user's token has expired
+            RuntimeError: If the session is missing
+        """
+
         access_token = self._access_token()
 
         url = Threads.build_graph_api_url(
@@ -633,6 +744,17 @@ class API:
         return await self._get(url)
 
     async def conversation(self, thread_id: str):
+        """Returns a paginated and flattened list of all top-level and nested replies of the requested `thread_id`
+        https://developers.facebook.com/docs/threads/reply-management#conversations
+
+        Returns:
+            The JSON response as a dict
+
+        Raises:
+            ThreadsAccessTokenExpired: If the user's token has expired
+            RuntimeError: If the session is missing
+        """
+
         access_token = self._access_token()
 
         url = Threads.build_graph_api_url(
@@ -662,6 +784,26 @@ class API:
         return await self._get(url)
 
     async def manage_reply(self, reply_id: str, hide: bool):
+        """Hide/unhide any top-level replies.
+
+        This will automatically hide/unhide all the nested replies. Note: Replies
+        nested deeper than the top-level reply cannot be targeted in isolation
+        to be hidden/unhidden.
+
+        https://developers.facebook.com/docs/threads/reply-management#hide-replies
+
+        Args:
+            reply_id: The id of the reply whose visibility you want to change
+            hide: Whether to hide the reply or not
+
+        Returns:
+            The JSON response as a dict
+
+        Raises:
+            ThreadsAccessTokenExpired: If the user's token has expired
+            RuntimeError: If the session is missing
+        """
+
         access_token = self._access_token()
 
         params = {PARAMS__HIDE: hide}
@@ -673,6 +815,23 @@ class API:
         return await self._post(url)
 
     async def insights(self, thread_id: str):
+        """Retrieve the available insights metrics
+
+        Returned metrics do not capture nested replies' metrics.
+
+        https://developers.facebook.com/docs/threads/insights#media-insights
+
+        Args:
+            thread_id: The thread media id whose metrics you're requesting
+
+        Returns:
+            The JSON response as a dict. Requests all available metrics.
+
+        Raises:
+            ThreadsAccessTokenExpired: If the user's token has expired
+            RuntimeError: If the session is missing
+        """
+
         access_token = self._access_token()
 
         url = Threads.build_graph_api_url(
