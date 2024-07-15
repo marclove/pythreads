@@ -264,7 +264,7 @@ process:
 - [Understanding Container Status](https://developers.facebook.com/docs/threads/troubleshooting#publishing-does-not-return-a-media-id)
 
 ## Roadmap
-- [ ] Improve documentation of `API` methods and publish the docs.
+- [x] Improve documentation of `API` methods and publish the docs.
 - [ ] Type the return values of the `API` methods. They currently all return `Any`.
 - [ ] Add integration with S3 and R2 storage. The Threads API doesn't take media uploads directly. You have to upload files to a publicly accessible URL and pass the URL in the API response. This integration would handle the upload to cloud storage and passing of the URL to the Threads API for you.
 - [ ] Explore adding JSON fixtures of expected responses to specs.
