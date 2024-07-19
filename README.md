@@ -146,7 +146,7 @@ responsibility for closing it. You must use the `API` object as an async
 context manager if you want it to manage a session for you:
 
 ```python
-# Retrieve the user's credentials from whereever you're storing them:
+# Retrieve the user's credentials from wherever you're storing them:
 credentials = Credentials.from_json(stored_json)
 
 async with API(credentials=credentials) as api:
@@ -161,7 +161,7 @@ session for all requests):
 # Create an `aiohttp.ClientSession` at some point:
 session = aiohttp.ClientSession()
 
-# Retrieve the user's credentials from whereever you're storing them:
+# Retrieve the user's credentials from wherever you're storing them:
 credentials = Credentials.from_json(stored_json)
 
 api = API(credentials=credentials, session=session)
