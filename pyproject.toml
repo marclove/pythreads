@@ -32,7 +32,7 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-  "aiohttp==3.9.*",
+  "aiohttp>=3.9,<3.11",
   "python-dotenv==1.0.*",
   "requests==2.32.*",
   "requests-oauthlib==2.0.*",
