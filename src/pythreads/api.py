@@ -4,59 +4,143 @@
 
 from dataclasses import dataclass
 from datetime import date, datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from json import JSONEncoder
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, Iterable, List, Literal, Optional, Sequence, Union
 
 import aiohttp
 
 from pythreads.credentials import Credentials
 from pythreads.threads import Threads, ThreadsAccessTokenExpired
 
-FIELD__AGE = "age"
-FIELD__BREAKDOWN = "breakdown"
-FIELD__CHILDREN = "children"
-FIELD__CITY = "city"
-FIELD__COUNTRY = "country"
-FIELD__FOLLOWER_DEMOGRAPHICS = "follower_demographics"
-FIELD__ERROR_MESSAGE = "error_message"
-FIELD__FOLLOWERS_COUNT = "followers_count"
-FIELD__GENDER = "gender"
-FIELD__HIDE_STATUS = "hide_status"
-FIELD__ID = "id"
-FIELD__IS_QUOTE_POST = "is_quote_post"
-FIELD__IS_REPLY = "is_reply"
-FIELD__LIKES = "likes"
-FIELD__MEDIA_PRODUCT_TYPE = "media_product_type"
-FIELD__MEDIA_TYPE = "media_type"
-FIELD__MEDIA_URL = "media_url"
-FIELD__OWNER = "owner"
-FIELD__PERMALINK = "permalink"
-FIELD__QUOTES = "quotes"
-FIELD__REPLIES = "replies"
-FIELD__REPLY_AUDIENCE = "reply_audience"
-FIELD__REPOSTS = "reposts"
-FIELD__SHORTCODE = "shortcode"
-FIELD__STATUS = "status"
-FIELD__TEXT = "text"
-FIELD__THREADS_BIOGRAPHY = "threads_biography"
-FIELD__THREADS_PROFILE_PICTURE_URL = "threads_profile_picture_url"
-FIELD__THUMBNAIL_URL = "thumbnail_url"
-FIELD__TIMESTAMP = "timestamp"
-FIELD__USERNAME = "username"
-FIELD__VIEWS = "views"
 
-USER_METRIC_TYPES = set(
-    [
-        FIELD__VIEWS,
-        FIELD__LIKES,
-        FIELD__REPLIES,
-        FIELD__REPOSTS,
-        FIELD__QUOTES,
-        FIELD__FOLLOWERS_COUNT,
-        FIELD__FOLLOWER_DEMOGRAPHICS,
-    ]
+class Field(StrEnum):
+    AGE = "age"
+    BREAKDOWN = "breakdown"
+    CHILDREN = "children"
+    CITY = "city"
+    CONFIG = "config"
+    COUNTRY = "country"
+    DELETE_CONFIG = "delete_config"
+    DELETE_QUOTA_USAGE = "delete_quota_usage"
+    ERROR_MESSAGE = "error_message"
+    FOLLOWERS_COUNT = "followers_count"
+    FOLLOWER_DEMOGRAPHICS = "follower_demographics"
+    GENDER = "gender"
+    GIF_URL = "gif_url"
+    HAS_REPLIES = "has_replies"
+    HIDE_STATUS = "hide_status"
+    ID = "id"
+    IS_QUOTE_POST = "is_quote_post"
+    IS_REPLY = "is_reply"
+    IS_REPLY_OWNED_BY_ME = "is_reply_owned_by_me"
+    LIKES = "likes"
+    LOCATION_SEARCH_CONFIG = "location_search_config"
+    LOCATION_SEARCH_QUOTA_USAGE = "location_search_quota_usage"
+    MEDIA_PRODUCT_TYPE = "media_product_type"
+    MEDIA_TYPE = "media_type"
+    MEDIA_URL = "media_url"
+    OWNER = "owner"
+    PERMALINK = "permalink"
+    POLL_ATTACHMENT = "poll_attachment"
+    QUOTA_USAGE = "quota_usage"
+    QUOTES = "quotes"
+    REPLIED_TO = "replied_to"
+    REPLIES = "replies"
+    REPLY_AUDIENCE = "reply_audience"
+    REPLY_CONFIG = "reply_config"
+    REPLY_QUOTA_USAGE = "reply_quota_usage"
+    REPOSTS = "reposts"
+    ROOT_POST = "root_post"
+    SHARES = "shares"
+    SHORTCODE = "shortcode"
+    STATUS = "status"
+    TEXT = "text"
+    THREADS_BIOGRAPHY = "threads_biography"
+    THREADS_PROFILE_PICTURE_URL = "threads_profile_picture_url"
+    THUMBNAIL_URL = "thumbnail_url"
+    TIMESTAMP = "timestamp"
+    TOPIC_TAG = "topic_tag"
+    USERNAME = "username"
+    VIEWS = "views"
+
+
+DEFAULT_ACCOUNT_FIELDS = (
+    Field.THREADS_BIOGRAPHY,
+    Field.THREADS_PROFILE_PICTURE_URL,
+    Field.USERNAME,
 )
+
+DEFAULT_PUBLISHING_LIMIT_FIELDS = (
+    Field.QUOTA_USAGE,
+    Field.CONFIG,
+    Field.REPLY_QUOTA_USAGE,
+    Field.REPLY_CONFIG,
+    Field.DELETE_QUOTA_USAGE,
+    Field.DELETE_CONFIG,
+    Field.LOCATION_SEARCH_QUOTA_USAGE,
+    Field.LOCATION_SEARCH_CONFIG,
+)
+
+DEFAULT_THREAD_FIELDS = (
+    Field.CHILDREN,
+    Field.GIF_URL,
+    Field.ID,
+    Field.IS_QUOTE_POST,
+    Field.MEDIA_PRODUCT_TYPE,
+    Field.MEDIA_TYPE,
+    Field.MEDIA_URL,
+    Field.OWNER,
+    Field.PERMALINK,
+    Field.POLL_ATTACHMENT,
+    Field.SHORTCODE,
+    Field.TEXT,
+    Field.THUMBNAIL_URL,
+    Field.TIMESTAMP,
+    Field.TOPIC_TAG,
+    Field.USERNAME,
+)
+
+DEFAULT_REPLY_FIELDS = (
+    Field.CHILDREN,
+    Field.GIF_URL,
+    Field.ID,
+    Field.IS_QUOTE_POST,
+    Field.MEDIA_PRODUCT_TYPE,
+    Field.MEDIA_TYPE,
+    Field.MEDIA_URL,
+    Field.OWNER,
+    Field.PERMALINK,
+    Field.POLL_ATTACHMENT,
+    Field.REPLIED_TO,
+    Field.SHORTCODE,
+    Field.TEXT,
+    Field.THUMBNAIL_URL,
+    Field.TIMESTAMP,
+    Field.TOPIC_TAG,
+    Field.USERNAME,
+)
+
+DEFAULT_CONVERSATION_FIELDS = DEFAULT_REPLY_FIELDS
+
+DEFAULT_METRIC_FIELDS = (
+    Field.LIKES,
+    Field.QUOTES,
+    Field.REPLIES,
+    Field.REPOSTS,
+    Field.VIEWS,
+    Field.SHARES,
+)
+
+USER_METRIC_TYPES = {
+    Field.VIEWS,
+    Field.LIKES,
+    Field.REPLIES,
+    Field.REPOSTS,
+    Field.QUOTES,
+    Field.FOLLOWERS_COUNT,
+    Field.FOLLOWER_DEMOGRAPHICS,
+}
 
 UserMetricType = Literal[
     "views",
@@ -68,14 +152,12 @@ UserMetricType = Literal[
     "follower_demographics",
 ]
 
-FOLLOWER_DEMOGRAPHIC_TYPES = set(
-    [
-        FIELD__AGE,
-        FIELD__CITY,
-        FIELD__COUNTRY,
-        FIELD__GENDER,
-    ]
-)
+FOLLOWER_DEMOGRAPHIC_TYPES = {
+    Field.AGE,
+    Field.CITY,
+    Field.COUNTRY,
+    Field.GENDER,
+}
 
 FollowerDemographicType = Literal["age", "city", "country", "gender"]
 
@@ -217,7 +299,11 @@ class API:
         async with self.session.post(url) as response:
             return await response.json()
 
-    async def account(self, user_id: str = "me") -> Any:
+    async def account(
+        self,
+        user_id: str = "me",
+        fields: Sequence[str] = DEFAULT_ACCOUNT_FIELDS,
+    ) -> Any:
         """Retrieve a Threads User's Profile Information
 
         https://developers.facebook.com/docs/threads/threads-profiles
@@ -231,15 +317,7 @@ class API:
 
         url = Threads.build_graph_api_url(
             user_id,
-            {
-                PARAMS__FIELDS: ",".join(
-                    [
-                        FIELD__THREADS_BIOGRAPHY,
-                        FIELD__THREADS_PROFILE_PICTURE_URL,
-                        FIELD__USERNAME,
-                    ]
-                )
-            },
+            {PARAMS__FIELDS: ",".join(fields)},
             access_token,
         )
 
@@ -291,7 +369,7 @@ class API:
         # parameter is required: https://developers.facebook.com/docs/threads/insights#user-metrics
         if (
             # Requesting the follower_demographics metric
-            FIELD__FOLLOWER_DEMOGRAPHICS in requested_metrics
+            Field.FOLLOWER_DEMOGRAPHICS in requested_metrics
             # and did not provide the required breakdown parameter
             and breakdown not in FOLLOWER_DEMOGRAPHIC_TYPES
         ):
@@ -318,7 +396,10 @@ class API:
 
         return await self._get(url)
 
-    async def publishing_limit(self) -> Any:
+    async def publishing_limit(
+        self,
+        fields: Sequence[str] = DEFAULT_PUBLISHING_LIMIT_FIELDS,
+    ) -> Any:
         """The user's current Threads API usage total
 
         https://developers.facebook.com/docs/threads/troubleshooting#retrieve-publishing-quota-limit
@@ -338,14 +419,7 @@ class API:
         url = Threads.build_graph_api_url(
             f"{user_id}/threads_publishing_limit",
             {
-                PARAMS__FIELDS: ",".join(
-                    [
-                        PARAMS__CONFIG,
-                        PARAMS__QUOTA_USAGE,
-                        PARAMS__REPLY_CONFIG,
-                        PARAMS__REPLY_QUOTA_USAGE,
-                    ]
-                )
+                PARAMS__FIELDS: ",".join(fields),
             },
             access_token,
         )
@@ -524,9 +598,9 @@ class API:
             {
                 PARAMS__FIELDS: ",".join(
                     [
-                        FIELD__ID,
-                        FIELD__STATUS,
-                        FIELD__ERROR_MESSAGE,
+                        Field.ID,
+                        Field.STATUS,
+                        Field.ERROR_MESSAGE,
                     ]
                 )
             },
@@ -609,19 +683,19 @@ class API:
             {
                 PARAMS__FIELDS: ",".join(
                     [
-                        FIELD__CHILDREN,
-                        FIELD__ID,
-                        FIELD__IS_QUOTE_POST,
-                        FIELD__MEDIA_PRODUCT_TYPE,
-                        FIELD__MEDIA_TYPE,
-                        FIELD__MEDIA_URL,
-                        FIELD__OWNER,
-                        FIELD__PERMALINK,
-                        FIELD__SHORTCODE,
-                        FIELD__TEXT,
-                        FIELD__THUMBNAIL_URL,
-                        FIELD__TIMESTAMP,
-                        FIELD__USERNAME,
+                        Field.CHILDREN,
+                        Field.ID,
+                        Field.IS_QUOTE_POST,
+                        Field.MEDIA_PRODUCT_TYPE,
+                        Field.MEDIA_TYPE,
+                        Field.MEDIA_URL,
+                        Field.OWNER,
+                        Field.PERMALINK,
+                        Field.SHORTCODE,
+                        Field.TEXT,
+                        Field.THUMBNAIL_URL,
+                        Field.TIMESTAMP,
+                        Field.USERNAME,
                     ]
                 )
             },
@@ -674,6 +748,7 @@ class API:
 
         Args:
             user_id: [optional] Which user ID to retrieve threads from.
+            fields: [optional] Which fields to retrieve.
             since: [optional] The starting `date` of the time window you are requesting
             until: [optional] The ending `date` of the time window you are requesting
             limit: [optional] The maximum number of threads to return. Defaults to 25.
@@ -694,23 +769,7 @@ class API:
             user_id = self.credentials.user_id
 
         params = {
-            PARAMS__FIELDS: ",".join(
-                [
-                    FIELD__CHILDREN,
-                    FIELD__ID,
-                    FIELD__IS_QUOTE_POST,
-                    FIELD__MEDIA_PRODUCT_TYPE,
-                    FIELD__MEDIA_TYPE,
-                    FIELD__MEDIA_URL,
-                    FIELD__OWNER,
-                    FIELD__PERMALINK,
-                    FIELD__SHORTCODE,
-                    FIELD__TEXT,
-                    FIELD__THUMBNAIL_URL,
-                    FIELD__TIMESTAMP,
-                    FIELD__USERNAME,
-                ]
-            )
+            PARAMS__FIELDS: ",".join(fields),
         }
 
         # Handling string is legacy. Need to deprecate and remove.
@@ -740,6 +799,7 @@ class API:
     async def replies(
         self,
         thread_id: str = "me",
+        fields: Iterable[str] = DEFAULT_REPLY_FIELDS,
         limit: Optional[int] = None,
         before: Optional[str] = None,
         after: Optional[str] = None,
@@ -751,6 +811,7 @@ class API:
         Args:
             thread_id: The id of the thread or user whose immediate replies you want to retrieve.
                        Can also be "me" to retrieve all your replies.
+            fields: [optional] Which fields to retrieve.
             limit: [optional] The maximum number of threads to return. Defaults to 25.
             before: [optional] A before cursor for pagination that was returned from a previous request.
             after: [optional] An after cursor for pagination that was returned from a previous request.
@@ -766,23 +827,7 @@ class API:
         access_token = self._access_token()
 
         params = {
-            PARAMS__FIELDS: ",".join(
-                [
-                    FIELD__CHILDREN,
-                    FIELD__ID,
-                    FIELD__IS_QUOTE_POST,
-                    FIELD__MEDIA_PRODUCT_TYPE,
-                    FIELD__MEDIA_TYPE,
-                    FIELD__MEDIA_URL,
-                    FIELD__OWNER,
-                    FIELD__PERMALINK,
-                    FIELD__SHORTCODE,
-                    FIELD__TEXT,
-                    FIELD__THUMBNAIL_URL,
-                    FIELD__TIMESTAMP,
-                    FIELD__USERNAME,
-                ]
-            )
+            PARAMS__FIELDS: ",".join(fields),
         }
         if limit:
             params[PARAMS__LIMIT] = f"{limit}"
@@ -804,6 +849,7 @@ class API:
     async def conversation(
         self,
         thread_id: str,
+        fields: Iterable[str] = DEFAULT_CONVERSATION_FIELDS,
         before: Optional[str] = None,
         after: Optional[str] = None,
     ):
@@ -822,6 +868,7 @@ class API:
 
         Args:
             thread_id: The id of the thread whose replies you want to retrieve
+            fields: [optional] Which fields to retrieve.
             before: [optional] A before cursor for pagination that was returned from a previous request
             after: [optional] An after cursor for pagination that was returned from a previous request
 
@@ -836,23 +883,7 @@ class API:
         access_token = self._access_token()
 
         params = {
-            PARAMS__FIELDS: ",".join(
-                [
-                    FIELD__CHILDREN,
-                    FIELD__ID,
-                    FIELD__IS_QUOTE_POST,
-                    FIELD__MEDIA_PRODUCT_TYPE,
-                    FIELD__MEDIA_TYPE,
-                    FIELD__MEDIA_URL,
-                    FIELD__OWNER,
-                    FIELD__PERMALINK,
-                    FIELD__SHORTCODE,
-                    FIELD__TEXT,
-                    FIELD__THUMBNAIL_URL,
-                    FIELD__TIMESTAMP,
-                    FIELD__USERNAME,
-                ]
-            )
+            PARAMS__FIELDS: ",".join(fields),
         }
 
         if before:
@@ -901,6 +932,7 @@ class API:
     async def insights(
         self,
         thread_id: str,
+        metric: Sequence[str] = DEFAULT_METRIC_FIELDS,
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
     ):
@@ -912,6 +944,7 @@ class API:
 
         Args:
             thread_id: The thread media id whose metrics you're requesting
+            metrics: The metric or metrics you want to retrieve (see linked official docs)
             since: [optional] The starting datetime of the time window you are requesting
             until: [optional] The ending datetime of the time window you are requesting
 
@@ -924,17 +957,7 @@ class API:
         """
 
         access_token = self._access_token()
-        params = {
-            PARAMS__METRIC: ",".join(
-                [
-                    FIELD__LIKES,
-                    FIELD__QUOTES,
-                    FIELD__REPLIES,
-                    FIELD__REPOSTS,
-                    FIELD__VIEWS,
-                ]
-            )
-        }
+        params = {PARAMS__METRIC: ",".join(metric)}
 
         if since:
             params["since"] = int(since.timestamp())
