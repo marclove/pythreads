@@ -733,13 +733,23 @@ class API:
         url = Threads.build_graph_api_url(f"{user_id}/threads", params, access_token)
         return await self._get(url)
 
-    async def replies(self, thread_id: str):
+    async def replies(
+        self,
+        thread_id: str = "me",
+        limit: Optional[int] = None,
+        before: Optional[str] = None,
+        after: Optional[str] = None,
+    ):
         """Returns the immediate replies of the requested `thread_id`
 
         https://developers.facebook.com/docs/threads/reply-management#replies
 
         Args:
-            thread_id: The id of the thread whose immediate replies you want to retrieve
+            thread_id: The id of the thread or user whose immediate replies you want to retrieve.
+                       Can also be "me" to retrieve all your replies.
+            limit: [optional] The maximum number of threads to return. Defaults to 25.
+            before: [optional] A before cursor for pagination that was returned from a previous request.
+            after: [optional] An after cursor for pagination that was returned from a previous request.
 
         Returns:
             The JSON response as a dict
@@ -751,27 +761,37 @@ class API:
 
         access_token = self._access_token()
 
+        params = {
+            PARAMS__FIELDS: ",".join(
+                [
+                    FIELD__CHILDREN,
+                    FIELD__ID,
+                    FIELD__IS_QUOTE_POST,
+                    FIELD__MEDIA_PRODUCT_TYPE,
+                    FIELD__MEDIA_TYPE,
+                    FIELD__MEDIA_URL,
+                    FIELD__OWNER,
+                    FIELD__PERMALINK,
+                    FIELD__SHORTCODE,
+                    FIELD__TEXT,
+                    FIELD__THUMBNAIL_URL,
+                    FIELD__TIMESTAMP,
+                    FIELD__USERNAME,
+                ]
+            )
+        }
+        if limit:
+            params[PARAMS__LIMIT] = f"{limit}"
+
+        if before:
+            params[PARAMS__BEFORE] = before
+
+        if after:
+            params[PARAMS__AFTER] = after
+
         url = Threads.build_graph_api_url(
             f"{thread_id}/replies",
-            {
-                PARAMS__FIELDS: ",".join(
-                    [
-                        FIELD__CHILDREN,
-                        FIELD__ID,
-                        FIELD__IS_QUOTE_POST,
-                        FIELD__MEDIA_PRODUCT_TYPE,
-                        FIELD__MEDIA_TYPE,
-                        FIELD__MEDIA_URL,
-                        FIELD__OWNER,
-                        FIELD__PERMALINK,
-                        FIELD__SHORTCODE,
-                        FIELD__TEXT,
-                        FIELD__THUMBNAIL_URL,
-                        FIELD__TIMESTAMP,
-                        FIELD__USERNAME,
-                    ]
-                )
-            },
+            params,
             access_token,
         )
 
