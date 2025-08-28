@@ -897,7 +897,7 @@ class API:
         url = Threads.build_graph_api_url(
             f"{thread_id}/insights",
             {
-                PARAMS__FIELDS: ",".join(
+                PARAMS__METRIC: ",".join(
                     [
                         FIELD__LIKES,
                         FIELD__QUOTES,
