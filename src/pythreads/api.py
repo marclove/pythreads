@@ -650,6 +650,8 @@ class API:
 
     async def threads(
         self,
+        user_id: str | None = None,
+        fields: Iterable[str] = DEFAULT_THREAD_FIELDS,
         since: Optional[Union[date, str]] = None,
         until: Optional[Union[date, str]] = None,
         limit: Optional[int] = None,
@@ -671,6 +673,7 @@ class API:
 
 
         Args:
+            user_id: [optional] Which user ID to retrieve threads from.
             since: [optional] The starting `date` of the time window you are requesting
             until: [optional] The ending `date` of the time window you are requesting
             limit: [optional] The maximum number of threads to return. Defaults to 25.
@@ -687,7 +690,8 @@ class API:
 
         access_token = self._access_token()
 
-        user_id = self.credentials.user_id
+        if not user_id:
+            user_id = self.credentials.user_id
 
         params = {
             PARAMS__FIELDS: ",".join(
