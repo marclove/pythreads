@@ -898,7 +898,12 @@ class API:
 
         return await self._post(url)
 
-    async def insights(self, thread_id: str):
+    async def insights(
+        self,
+        thread_id: str,
+        since: Optional[datetime] = None,
+        until: Optional[datetime] = None,
+    ):
         """Retrieve the available insights metrics
 
         Returned metrics do not capture nested replies' metrics.
@@ -907,6 +912,8 @@ class API:
 
         Args:
             thread_id: The thread media id whose metrics you're requesting
+            since: [optional] The starting datetime of the time window you are requesting
+            until: [optional] The ending datetime of the time window you are requesting
 
         Returns:
             The JSON response as a dict. Requests all available metrics.
@@ -917,20 +924,27 @@ class API:
         """
 
         access_token = self._access_token()
+        params = {
+            PARAMS__METRIC: ",".join(
+                [
+                    FIELD__LIKES,
+                    FIELD__QUOTES,
+                    FIELD__REPLIES,
+                    FIELD__REPOSTS,
+                    FIELD__VIEWS,
+                ]
+            )
+        }
+
+        if since:
+            params["since"] = int(since.timestamp())
+
+        if until:
+            params["until"] = int(until.timestamp())
 
         url = Threads.build_graph_api_url(
             f"{thread_id}/insights",
-            {
-                PARAMS__METRIC: ",".join(
-                    [
-                        FIELD__LIKES,
-                        FIELD__QUOTES,
-                        FIELD__REPLIES,
-                        FIELD__REPOSTS,
-                        FIELD__VIEWS,
-                    ]
-                )
-            },
+            params,
             access_token,
         )
 
