@@ -48,6 +48,7 @@ from .types import (
 )
 from .transport import Transport
 from .endpoints.accounts import AccountsService
+from .endpoints.threads import ThreadsService
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +97,7 @@ class API:
                 backoff_max=self.backoff_max,
             )
             self.accounts = AccountsService(self.transport, self.credentials)
+            self.threads_service = ThreadsService(self.transport, self.credentials)
 
     @property
     def session(self) -> Optional[aiohttp.ClientSession]:
@@ -131,6 +133,7 @@ class API:
             backoff_max=self.backoff_max,
         )
         self.accounts = AccountsService(self.transport, self.credentials)
+        self.threads_service = ThreadsService(self.transport, self.credentials)
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
@@ -397,30 +400,22 @@ class API:
         before: Optional[str] = None,
         after: Optional[str] = None,
     ):
-        access_token = self._access_token()
-        params: Dict[str, str] = {PARAMS__FIELDS: ",".join(fields)}
-        if since:
-            params[PARAMS__SINCE] = since if isinstance(since, str) else since.isoformat()
-        if until:
-            params[PARAMS__UNTIL] = until if isinstance(until, str) else until.isoformat()
-        if limit:
-            params[PARAMS__LIMIT] = str(limit)
-        if before:
-            params[PARAMS__BEFORE] = before
-        if after:
-            params[PARAMS__AFTER] = after
-        user_id = user_id or self.credentials.user_id
-        url = self._build_url(f"{user_id}/threads", params, access_token)
-        return await self._get(url)
+        assert self.threads_service is not None
+        return await self.threads_service.threads(
+            user_id=user_id,
+            fields=fields,
+            since=since,
+            until=until,
+            limit=limit,
+            before=before,
+            after=after,
+        )
 
     async def replies(
         self, thread_id: str, fields: Iterable[str] = DEFAULT_REPLY_FIELDS
     ):
-        access_token = self._access_token()
-        url = self._build_url(
-            f"{thread_id}/replies", {PARAMS__FIELDS: ",".join(fields)}, access_token
-        )
-        return await self._get(url)
+        assert self.threads_service is not None
+        return await self.threads_service.replies(thread_id, fields)
 
     async def conversation(
         self,
@@ -429,14 +424,10 @@ class API:
         before: Optional[str] = None,
         after: Optional[str] = None,
     ):
-        access_token = self._access_token()
-        params = {PARAMS__FIELDS: ",".join(fields)}
-        if before:
-            params[PARAMS__BEFORE] = before
-        if after:
-            params[PARAMS__AFTER] = after
-        url = self._build_url(f"{thread_id}/conversation", params, access_token)
-        return await self._get(url)
+        assert self.threads_service is not None
+        return await self.threads_service.conversation(
+            thread_id, fields=fields, before=before, after=after
+        )
 
     async def manage_reply(self, reply_id: str, hide: bool):
         access_token = self._access_token()
