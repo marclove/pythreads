@@ -300,3 +300,24 @@ Use uv for a fast, reproducible workflow:
 Notes:
 - The `API` client uses a default 30s timeout and raises `ThreadsHTTPError` on non-2xx HTTP responses.
 - You can override defaults via `API(credentials, timeout=10, base_url="https://graph.threads.net/")`.
+- Per-call overrides are also supported via `request_options`:
+
+```python
+async with API(credentials) as api:
+    # Retry this specific call up to 3 times with a 10s timeout
+    resp = await api.threads(request_options={"retries": 3, "timeout": 10.0})
+```
+
+Using Pydantic models (optional)
+- Install with extras: `uv pip install ".[models]"` or `pip install pythreads[models]`
+- Validate responses with Pydantic v2 models:
+
+```python
+from pythreads.api.models import InsightsResponseModel
+
+async with API(credentials) as api:
+    raw = await api.insights("someid")
+    model = InsightsResponseModel.model_validate(raw)
+    for item in (model.data or []):
+        print(item.name, item.period)
+```

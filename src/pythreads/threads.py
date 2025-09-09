@@ -8,7 +8,11 @@ from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Tuple, Union
 from urllib.parse import urlencode
 
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except Exception:  # fallback if python-dotenv isn't installed
+    def load_dotenv(*args, **kwargs):  # type: ignore[no-redef]
+        return False
 from requests import Response, get
 from requests_oauthlib import OAuth2Session
 

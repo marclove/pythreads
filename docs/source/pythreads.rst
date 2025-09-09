@@ -43,6 +43,16 @@ Each yields items from the ``data`` array and follows the ``paging.cursors.after
    :members:
    :undoc-members:
 
+Models (optional)
+--------------------
+
+Pydantic v2 models are provided for convenience when you want validation.
+Install extras with ``pip install pythreads[models]`` and then:
+
+.. automodule:: pythreads.api.models
+   :members:
+   :undoc-members:
+
 API Options
 --------------------
 

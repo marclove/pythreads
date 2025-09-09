@@ -48,10 +48,14 @@ dev = [
   "ruff",
   "pyright>=1.1.371",
   "types-requests",
+  "pydantic>=2,<3",
   # Docs
   "sphinx",
   "furo",
   "myst-parser",
+]
+models = [
+  "pydantic>=2,<3",
 ]
 
 [project.urls]
