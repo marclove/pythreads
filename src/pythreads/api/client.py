@@ -50,6 +50,8 @@ from .transport import Transport
 from .endpoints.accounts import AccountsService
 from .endpoints.threads import ThreadsService
 from .endpoints.media import MediaService
+from .endpoints.insights import InsightsService
+from .endpoints.moderation import ModerationService
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +90,8 @@ class API:
         self.accounts: AccountsService | None = None
         self.threads_service: ThreadsService | None = None
         self.media_service: MediaService | None = None
+        self.insights_service: InsightsService | None = None
+        self.moderation_service: ModerationService | None = None
         # If a session is provided, wire transport and services immediately
         if self._session is not None:
             self.transport = Transport(
@@ -102,6 +106,8 @@ class API:
             self.accounts = AccountsService(self.transport, self.credentials)
             self.threads_service = ThreadsService(self.transport, self.credentials)
             self.media_service = MediaService(self.transport, self.credentials)
+            self.insights_service = InsightsService(self.transport, self.credentials)
+            self.moderation_service = ModerationService(self.transport)
 
     @property
     def session(self) -> Optional[aiohttp.ClientSession]:
@@ -139,6 +145,8 @@ class API:
         self.accounts = AccountsService(self.transport, self.credentials)
         self.threads_service = ThreadsService(self.transport, self.credentials)
         self.media_service = MediaService(self.transport, self.credentials)
+        self.insights_service = InsightsService(self.transport, self.credentials)
+        self.moderation_service = ModerationService(self.transport)
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
@@ -215,35 +223,10 @@ class API:
         until: Optional[datetime] = None,
         breakdown: Optional[FollowerDemographicType] = None,
     ) -> Any:
-        access_token = self._access_token()
-
-        if isinstance(metrics, str):
-            metrics = [metrics]
-        requested_metrics = set(metrics)
-        invalid_metrics = requested_metrics.difference(USER_METRIC_TYPES)
-        if len(invalid_metrics) > 0:
-            raise ThreadsInvalidParameter(
-                f"Invalid metrics provided: {', '.join(invalid_metrics)}"
-            )
-        if (
-            Field.FOLLOWER_DEMOGRAPHICS in requested_metrics
-            and breakdown not in FOLLOWER_DEMOGRAPHIC_TYPES
-        ):
-            raise ThreadsInvalidParameter(
-                "follower_demographics metric requires a breakdown value"
-            )
-
-        params: Dict[str, str | float] = {PARAMS__METRIC: ",".join(metrics)}
-        if since:
-            params["since"] = int(since.timestamp())
-        if until:
-            params["until"] = int(until.timestamp())
-        if breakdown:
-            params["breakdown"] = breakdown
-
-        user_id = self.credentials.user_id
-        url = self._build_url(f"{user_id}/threads_insights", params, access_token)
-        return await self._get(url)
+        assert self.insights_service is not None
+        return await self.insights_service.user_insights(
+            metrics, since=since, until=until, breakdown=breakdown
+        )
 
     async def publishing_limit(
         self, fields: Sequence[str] = DEFAULT_PUBLISHING_LIMIT_FIELDS
@@ -339,10 +322,8 @@ class API:
         )
 
     async def manage_reply(self, reply_id: str, hide: bool):
-        access_token = self._access_token()
-        params = {PARAMS__HIDE: hide}
-        url = self._build_url(f"{reply_id}/manage_reply", params, access_token)
-        return await self._post(url)
+        assert self.moderation_service is not None
+        return await self.moderation_service.manage_reply(reply_id, hide)
 
     async def insights(
         self,
@@ -351,11 +332,7 @@ class API:
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
     ):
-        access_token = self._access_token()
-        params: Dict[str, str] = {PARAMS__FIELDS: ",".join(metric)}
-        if since:
-            params["since"] = str(int(since.timestamp()))
-        if until:
-            params["until"] = str(int(until.timestamp()))
-        url = self._build_url(f"{thread_id}/insights", params, access_token)
-        return await self._get(url)
+        assert self.insights_service is not None
+        return await self.insights_service.insights(
+            thread_id, metric=metric, since=since, until=until
+        )
