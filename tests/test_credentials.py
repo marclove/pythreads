@@ -41,3 +41,13 @@ def test_expires_in(credentials):
 def test_expired(credentials):
     credentials.expiration = datetime.datetime.now(datetime.timezone.utc)
     assert credentials.expired()  # some milliseconds will have passed
+
+
+def test_deserialization_with_z_suffix():
+    # expiration ends with 'Z' (UTC). Ensure parser handles it.
+    json_str = (
+        '{"user_id":"u","scopes":["s"],"short_lived":false,'
+        '"access_token":"t","expiration":"2024-06-23T18:25:43.511Z"}'
+    )
+    creds = Credentials.from_json(json_str)
+    assert creds.expiration.tzinfo is not None

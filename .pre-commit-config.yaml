@@ -1,0 +1,10 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.371
+    hooks:
+      - id: pyright

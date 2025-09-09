@@ -18,7 +18,12 @@ class _JSONDecoder(json.JSONDecoder):
         ret = {}
         for key, value in obj.items():
             if key == "expiration":
-                ret[key] = datetime.fromisoformat(value)
+                if isinstance(value, str):
+                    # Support trailing 'Z' (UTC) for ISO-8601
+                    iso = value.replace("Z", "+00:00") if value.endswith("Z") else value
+                    ret[key] = datetime.fromisoformat(iso)
+                else:
+                    ret[key] = value
             else:
                 ret[key] = value
         return ret

@@ -1,0 +1,485 @@
+from __future__ import annotations
+
+import asyncio
+import logging
+import random
+from datetime import date, datetime
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Union, AsyncIterator
+
+import aiohttp
+
+from pythreads.credentials import Credentials
+from pythreads.threads import Threads, ThreadsAccessTokenExpired
+
+from .errors import ThreadsHTTPError
+from .types import (
+    DEFAULT_ACCOUNT_FIELDS,
+    DEFAULT_CONVERSATION_FIELDS,
+    DEFAULT_METRIC_FIELDS,
+    DEFAULT_PUBLISHING_LIMIT_FIELDS,
+    DEFAULT_REPLY_FIELDS,
+    DEFAULT_THREAD_FIELDS,
+    AccountResponse,
+    ConversationResponse,
+    ContainerResponse,
+    ContainerStatus,
+    FollowerDemographicType,
+    InsightsResponse,
+    ManageReplyResponse,
+    Media,
+    PublishingLimitResponse,
+    RepliesResponse,
+    ReplyControl,
+    RequestOptions,
+    ThreadsListResponse,
+)
+from .transport import Transport
+from .endpoints.accounts import AccountsService
+from .endpoints.threads import ThreadsService
+from .endpoints.media import MediaService
+from .endpoints.insights import InsightsService
+from .endpoints.moderation import ModerationService
+
+logger = logging.getLogger(__name__)
+
+
+class API:
+    """HTTP client for the Threads Graph API.
+
+    Options
+    - timeout: float seconds or aiohttp.ClientTimeout (default 30)
+    - base_url: override base API URL (default Threads' base URL)
+    - retries: number of retries for transient HTTP statuses (default 0)
+    - backoff_base: initial backoff seconds for retries (default 0.5)
+    - backoff_max: maximum backoff seconds (default 4.0)
+    """
+    def __init__(
+        self,
+        credentials: Credentials,
+        session: Optional[aiohttp.ClientSession] = None,
+        *,
+        timeout: Optional[Union[float, aiohttp.ClientTimeout]] = 30,
+        base_url: Optional[str] = None,
+        retries: int = 0,
+        backoff_base: float = 0.5,
+        backoff_max: float = 4.0,
+    ) -> None:
+        self.credentials = credentials
+        self.external_session = session
+        self._session = session
+        self.manage_session: bool = False
+        self.timeout = timeout
+        self.base_url = base_url
+        self.retries = max(0, int(retries))
+        self.backoff_base = float(backoff_base)
+        self.backoff_max = float(backoff_max)
+        self.transport: Transport | None = None
+        self.accounts: AccountsService | None = None
+        self.threads_service: ThreadsService | None = None
+        self.media_service: MediaService | None = None
+        self.insights_service: InsightsService | None = None
+        self.moderation_service: ModerationService | None = None
+        # If a session is provided, wire transport and services immediately
+        if self._session is not None:
+            self.transport = Transport(
+                session=self._session,
+                credentials=self.credentials,
+                timeout=self.timeout,
+                base_url=self.base_url,
+                retries=self.retries,
+                backoff_base=self.backoff_base,
+                backoff_max=self.backoff_max,
+            )
+            self.accounts = AccountsService(self.transport, self.credentials)
+            self.threads_service = ThreadsService(self.transport, self.credentials)
+            self.media_service = MediaService(self.transport, self.credentials)
+            self.insights_service = InsightsService(self.transport, self.credentials)
+            self.moderation_service = ModerationService(self.transport)
+
+    @property
+    def session(self) -> Optional[aiohttp.ClientSession]:
+        return self._session
+
+    @session.setter
+    def session(self, value: aiohttp.ClientSession):
+        self._session = value
+
+    async def __aenter__(self) -> "API":
+        if not self.external_session:
+            if isinstance(self.timeout, (int, float)) and self.timeout:
+                timeout = aiohttp.ClientTimeout(total=float(self.timeout))
+            elif isinstance(self.timeout, aiohttp.ClientTimeout):
+                timeout = self.timeout
+            else:
+                timeout = aiohttp.ClientTimeout(total=30)
+            self.session = aiohttp.ClientSession(timeout=timeout)
+            self.manage_session = True
+        else:
+            self.session = self.external_session
+            self.manage_session = False
+        # Wire transport and services
+        sess = self.session
+        assert sess is not None
+        self.transport = Transport(
+            session=sess,
+            credentials=self.credentials,
+            timeout=self.timeout,
+            base_url=self.base_url,
+            retries=self.retries,
+            backoff_base=self.backoff_base,
+            backoff_max=self.backoff_max,
+        )
+        self.accounts = AccountsService(self.transport, self.credentials)
+        self.threads_service = ThreadsService(self.transport, self.credentials)
+        self.media_service = MediaService(self.transport, self.credentials)
+        self.insights_service = InsightsService(self.transport, self.credentials)
+        self.moderation_service = ModerationService(self.transport)
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb) -> None:
+        if self.manage_session and self.session:
+            await self.session.close()
+
+    def _access_token(self) -> str:
+        if self.credentials.expired():
+            raise ThreadsAccessTokenExpired()
+        return self.credentials.access_token
+
+    def _build_url(
+        self, path: str, params: Optional[Dict[str, Any]], access_token: str
+    ) -> str:
+        # Keep legacy URL builder for now. New services use Transport._build_url.
+        if self.base_url:
+            return Threads.build_graph_api_url(path, params or {}, access_token, self.base_url)
+        return Threads.build_graph_api_url(path, params or {}, access_token)
+
+    async def _request(self, method: str, url: str) -> Any:
+        if self.session is None:
+            raise RuntimeError("an API instance must have a session to handle requests")
+        http_method = getattr(self.session, method)
+        attempts = self.retries + 1
+        for i in range(1, attempts + 1):
+            async with http_method(url) as response:
+                status = getattr(response, "status", 200)
+                if isinstance(status, int) and status >= 400:
+                    # Retry only for transient or throttling statuses
+                    should_retry = status == 429 or 500 <= status <= 599
+                    if should_retry and i <= self.retries:
+                        delay = min(self.backoff_base * (2 ** (i - 1)) + random.uniform(0, 0.1), self.backoff_max)
+                        logger.debug(
+                            "Transient error %s on %s %s, retry %s/%s in %.2fs",
+                            status,
+                            method.upper(),
+                            url,
+                            i,
+                            self.retries,
+                            delay,
+                        )
+                        await asyncio.sleep(delay)
+                        continue
+
+                    try:
+                        body = await response.json()
+                    except Exception:
+                        try:
+                            body = await response.text()
+                        except Exception:
+                            body = None
+                    logger.debug("Request failed: %s %s -> %s", method.upper(), url, status)
+                    raise ThreadsHTTPError(status, body)
+                return await response.json()
+
+    async def _get(self, url: str) -> Any:
+        return await self._request("get", url)
+
+    async def _post(self, url: str) -> Any:
+        return await self._request("post", url)
+
+    async def account(
+        self,
+        user_id: str = "me",
+        fields: Sequence[str] = DEFAULT_ACCOUNT_FIELDS,
+        *, request_options: RequestOptions | None = None
+    ) -> AccountResponse:
+        """Retrieve a Threads user's profile information.
+
+        Args:
+            user_id: "me" or a specific user id.
+            fields: Which fields to retrieve.
+            request_options: Optional per-call overrides like {"retries": 2, "timeout": 10.0,
+                "base_url": "https://graph.threads.net/"}.
+        """
+        assert self.accounts is not None
+        return await self.accounts.account(user_id=user_id, fields=fields, request_options=request_options)
+
+    async def user_insights(
+        self,
+        metrics: Union[str, List[str]],
+        since: Optional[datetime] = None,
+        until: Optional[datetime] = None,
+        breakdown: Optional[FollowerDemographicType] = None,
+        *, request_options: RequestOptions | None = None
+    ) -> InsightsResponse:
+        """Retrieve user-level insights.
+
+        Args:
+            metrics: One or more metric names.
+            since: Optional start datetime.
+            until: Optional end datetime.
+            breakdown: Required when requesting follower_demographics.
+            request_options: Optional per-call overrides (retries, timeout, base_url).
+        """
+        assert self.insights_service is not None
+        return await self.insights_service.user_insights(
+            metrics, since=since, until=until, breakdown=breakdown, request_options=request_options
+        )
+
+    async def publishing_limit(
+        self, fields: Sequence[str] = DEFAULT_PUBLISHING_LIMIT_FIELDS,
+        *, request_options: RequestOptions | None = None
+    ) -> PublishingLimitResponse:
+        """Retrieve current API usage limits and usage for the user.
+
+        Args:
+            fields: Which quota fields to include.
+            request_options: Optional per-call overrides (retries, timeout, base_url).
+        """
+        assert self.accounts is not None
+        return await self.accounts.publishing_limit(fields=fields, request_options=request_options)
+
+    async def create_container(
+        self,
+        text: Optional[str] = None,
+        media: Optional[Media] = None,
+        reply_control: ReplyControl = ReplyControl.EVERYONE,
+        reply_to_id: Optional[str] = None,
+        is_carousel_item: bool = False,
+        *, request_options: RequestOptions | None = None
+    ) -> str:
+        """Create a media or text container.
+
+        Args:
+            text: Optional text for the post.
+            media: Optional Media (IMAGE or VIDEO).
+            reply_control: Who can reply.
+            reply_to_id: Make this a reply to an existing post id.
+            is_carousel_item: Mark container as a child of a carousel.
+            request_options: Optional per-call overrides (retries, timeout, base_url).
+        """
+        assert self.media_service is not None
+        return await self.media_service.create_container(
+            text=text,
+            media=media,
+            reply_control=reply_control,
+            reply_to_id=reply_to_id,
+            is_carousel_item=is_carousel_item,
+            request_options=request_options,
+        )
+
+    async def create_carousel_container(
+        self,
+        containers: List[ContainerStatus],
+        text: Optional[str] = None,
+        reply_control: ReplyControl = ReplyControl.EVERYONE,
+        reply_to_id: Optional[str] = None,
+        *, request_options: RequestOptions | None = None
+    ) -> str:
+        """Create a carousel container from previously finished media containers.
+
+        Args:
+            containers: 2-10 finished media containers.
+            text: Optional text.
+            reply_control: Who can reply.
+            reply_to_id: Optional parent post id to reply to.
+            request_options: Optional per-call overrides (retries, timeout, base_url).
+        """
+        assert self.media_service is not None
+        return await self.media_service.create_carousel_container(
+            containers=containers,
+            text=text,
+            reply_control=reply_control,
+            reply_to_id=reply_to_id,
+            request_options=request_options,
+        )
+
+    async def container_status(self, media_id: str, *, request_options: RequestOptions | None = None) -> ContainerStatus:
+        """Check a container's publishing status.
+
+        Args:
+            media_id: Container id.
+            request_options: Optional per-call overrides.
+        """
+        assert self.media_service is not None
+        return await self.media_service.container_status(media_id, request_options=request_options)
+
+    async def publish_container(self, container_id: str, *, request_options: RequestOptions | None = None) -> str:
+        """Publish a previously created container.
+
+        Args:
+            container_id: The container to publish.
+            request_options: Optional per-call overrides.
+        """
+        assert self.media_service is not None
+        return await self.media_service.publish_container(container_id, request_options=request_options)
+
+    async def container(self, container_id: str, *, request_options: RequestOptions | None = None) -> ContainerResponse:
+        """Retrieve a container by id.
+
+        Args:
+            container_id: Container id to fetch.
+            request_options: Optional per-call overrides.
+        """
+        assert self.media_service is not None
+        return await self.media_service.container(container_id, request_options=request_options)
+
+    async def thread(self, thread_id: str, *, request_options: RequestOptions | None = None) -> ContainerResponse:
+        """Retrieve a single thread (alias of container()).
+
+        Args:
+            thread_id: Thread (media) id.
+            request_options: Optional per-call overrides.
+        """
+        assert self.media_service is not None
+        return await self.media_service.thread(thread_id, request_options=request_options)
+
+    async def threads(
+        self,
+        user_id: str | None = None,
+        fields: Iterable[str] = DEFAULT_THREAD_FIELDS,
+        since: Optional[Union[date, str]] = None,
+        until: Optional[Union[date, str]] = None,
+        limit: Optional[int] = None,
+        before: Optional[str] = None,
+        after: Optional[str] = None,
+        *, request_options: RequestOptions | None = None
+    ) -> ThreadsListResponse:
+        """List a user's threads with optional pagination window.
+
+        Args:
+            user_id: Defaults to the authenticated user.
+            fields: Which fields to retrieve.
+            since/until: Optional window constraints (date or ISO str).
+            limit/before/after: Pagination parameters.
+            request_options: Optional per-call overrides (retries, timeout, base_url).
+        """
+        assert self.threads_service is not None
+        return await self.threads_service.threads(
+            user_id=user_id,
+            fields=fields,
+            since=since,
+            until=until,
+            limit=limit,
+            before=before,
+            after=after,
+            request_options=request_options,
+        )
+
+    async def replies(
+        self, thread_id: str, fields: Iterable[str] = DEFAULT_REPLY_FIELDS, *, request_options: RequestOptions | None = None
+    ) -> RepliesResponse:
+        """List replies for a given thread.
+
+        Args:
+            thread_id: Thread id to fetch replies for.
+            fields: Which fields to retrieve.
+            request_options: Optional per-call overrides.
+        """
+        assert self.threads_service is not None
+        return await self.threads_service.replies(thread_id, fields, request_options=request_options)
+
+    async def conversation(
+        self,
+        thread_id: str,
+        fields: Iterable[str] = DEFAULT_CONVERSATION_FIELDS,
+        before: Optional[str] = None,
+        after: Optional[str] = None,
+        *, request_options: RequestOptions | None = None
+    ) -> ConversationResponse:
+        """Flattened list of top-level and nested replies for a thread.
+
+        Args:
+            thread_id: Root thread id.
+            fields: Which fields to retrieve.
+            before/after: Pagination cursors.
+            request_options: Optional per-call overrides.
+        """
+        assert self.threads_service is not None
+        return await self.threads_service.conversation(
+            thread_id, fields=fields, before=before, after=after, request_options=request_options
+        )
+
+    # Convenience async iterators (expose service iterators)  
+    def threads_iter(
+        self,
+        user_id: str | None = None,
+        fields: Iterable[str] = DEFAULT_THREAD_FIELDS,
+        since: Optional[Union[date, str]] = None,
+        until: Optional[Union[date, str]] = None,
+        per_page: int = 25,
+        page_limit: Optional[int] = None,
+    ) -> AsyncIterator[Dict[str, Any]]:
+        assert self.threads_service is not None
+        return self.threads_service.threads_iter(
+            user_id=user_id,
+            fields=fields,
+            since=since,
+            until=until,
+            per_page=per_page,
+            page_limit=page_limit,
+        )
+
+    def replies_iter(
+        self,
+        thread_id: str,
+        fields: Iterable[str] = DEFAULT_REPLY_FIELDS,
+        per_page: int = 25,
+        page_limit: Optional[int] = None,
+    ) -> AsyncIterator[Dict[str, Any]]:
+        assert self.threads_service is not None
+        return self.threads_service.replies_iter(
+            thread_id, fields=fields, per_page=per_page, page_limit=page_limit
+        )
+
+    def conversation_iter(
+        self,
+        thread_id: str,
+        fields: Iterable[str] = DEFAULT_CONVERSATION_FIELDS,
+        per_page: int = 25,
+        page_limit: Optional[int] = None,
+    ) -> AsyncIterator[Dict[str, Any]]:
+        assert self.threads_service is not None
+        return self.threads_service.conversation_iter(
+            thread_id, fields=fields, per_page=per_page, page_limit=page_limit
+        )
+
+    async def manage_reply(self, reply_id: str, hide: bool, *, request_options: RequestOptions | None = None) -> ManageReplyResponse:
+        """Hide or unhide a top-level reply (and its nested replies).
+
+        Args:
+            reply_id: Reply id to manage.
+            hide: True to hide, False to unhide.
+            request_options: Optional per-call overrides.
+        """
+        assert self.moderation_service is not None
+        return await self.moderation_service.manage_reply(reply_id, hide, request_options=request_options)
+
+    async def insights(
+        self,
+        thread_id: str,
+        metric: Sequence[str] = DEFAULT_METRIC_FIELDS,
+        since: Optional[datetime] = None,
+        until: Optional[datetime] = None,
+        *, request_options: RequestOptions | None = None
+    ) -> InsightsResponse:
+        """Retrieve media-level insights for a given thread.
+
+        Args:
+            thread_id: Thread id to fetch insights for.
+            metric: Which metrics to retrieve (fields parameter).
+            since/until: Optional epoch window in seconds.
+            request_options: Optional per-call overrides.
+        """
+        assert self.insights_service is not None
+        return await self.insights_service.insights(
+            thread_id, metric=metric, since=since, until=until, request_options=request_options
+        )

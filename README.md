@@ -23,6 +23,7 @@ follows [Semantic Versioning](https://semver.org/).
 - [Authentication & Authorization](#authentication--authorization)
 - [Making Requests](#making-requests)
 - [API Methods](#api-methods)
+- [Development](#development)
 - [Roadmap](#roadmap)
 - [License](#license)
 
@@ -248,6 +249,20 @@ async with API(self.credentials) as api:
     # carousel_id == result_id
 ```
 
+### Iterating over pages
+Use the built-in async iterators to page through results without manually handling cursors:
+
+```python
+async with API(credentials) as api:
+    # Iterate a user's threads (2 pages of 50 items)
+    async for t in api.threads_iter(per_page=50, page_limit=2):
+        print(t["id"], t.get("text"))
+
+    # Iterate replies for a thread
+    async for r in api.replies_iter(thread_id="1234567890", per_page=25):
+        print(r["id"], r.get("text"))
+```
+
 A few key things to point out above:
 
 1. Creating media containers requires you to put the image or video at a
@@ -272,3 +287,37 @@ process:
 ## License
 
 `pythreads` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
+
+## Development
+
+Use uv for a fast, reproducible workflow:
+
+- Setup: `uv sync --dev`
+- Lint and types: `uv run ruff check --fix .` and `uv run pyright .`
+- Unit tests (no network): `CI=1 uv run pytest -m "not smoke"`
+- Docs: `uv run sphinx-build -b html docs/source docs/build/html`
+
+Notes:
+- The `API` client uses a default 30s timeout and raises `ThreadsHTTPError` on non-2xx HTTP responses.
+- You can override defaults via `API(credentials, timeout=10, base_url="https://graph.threads.net/")`.
+- Per-call overrides are also supported via `request_options`:
+
+```python
+async with API(credentials) as api:
+    # Retry this specific call up to 3 times with a 10s timeout
+    resp = await api.threads(request_options={"retries": 3, "timeout": 10.0})
+```
+
+Using Pydantic models (optional)
+- Install with extras: `uv pip install ".[models]"` or `pip install pythreads[models]`
+- Validate responses with Pydantic v2 models:
+
+```python
+from pythreads.api.models import InsightsResponseModel
+
+async with API(credentials) as api:
+    raw = await api.insights("someid")
+    model = InsightsResponseModel.model_validate(raw)
+    for item in (model.data or []):
+        print(item.name, item.period)
+```

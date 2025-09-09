@@ -17,6 +17,7 @@ from pythreads.api import (
     PublishingError,
     PublishingStatus,
     ReplyControl,
+    ThreadsHTTPError,
     ThreadsInvalidParameter,
 )
 from pythreads.credentials import Credentials
@@ -778,6 +779,60 @@ class APITest(unittest.IsolatedAsyncioTestCase):
         mock_post.assert_has_calls([call("https://some-uri.com")])
 
         self.assertEqual(actual, "1")
+
+    @patch("aiohttp.ClientSession.get")
+    @patch("pythreads.api.Threads.build_graph_api_url")
+    async def test_get_raises_threads_http_error(
+        self, mock_build_graph_api_url, mock_get
+    ):
+        mock_build_graph_api_url.return_value = "https://some-uri.com"
+        error_response = {"error": {"message": "bad"}}
+        mock_resp = MagicMock()
+        mock_resp.json = AsyncMock(return_value=error_response)
+        mock_resp.status = 500
+        mock_get.side_effect = [
+            MagicMock(__aenter__=AsyncMock(return_value=mock_resp)),
+        ]
+
+        with self.assertRaises(ThreadsHTTPError):
+            await self.api.threads()
+
+    @patch("aiohttp.ClientSession.post")
+    @patch("pythreads.api.Threads.build_graph_api_url")
+    async def test_post_raises_threads_http_error(
+        self, mock_build_graph_api_url, mock_post
+    ):
+        mock_build_graph_api_url.return_value = "https://some-uri.com"
+        mock_resp = MagicMock()
+        mock_resp.json = AsyncMock(return_value={"error": "bad"})
+        mock_resp.status = 400
+        mock_post.side_effect = [
+            MagicMock(__aenter__=AsyncMock(return_value=mock_resp)),
+        ]
+
+        with self.assertRaises(ThreadsHTTPError):
+            await self.api.manage_reply("someid", hide=True)
+
+    @patch("aiohttp.ClientSession.get")
+    @patch("pythreads.api.Threads.build_graph_api_url")
+    async def test_get_threads_http_error_with_text_body(
+        self, mock_build_graph_api_url, mock_get
+    ):
+        mock_build_graph_api_url.return_value = "https://some-uri.com"
+
+        async def json_raiser():
+            raise ValueError("not json")
+
+        mock_resp = MagicMock()
+        mock_resp.json = AsyncMock(side_effect=json_raiser)
+        mock_resp.text = AsyncMock(return_value="plain error body")
+        mock_resp.status = 502
+        mock_get.side_effect = [
+            MagicMock(__aenter__=AsyncMock(return_value=mock_resp)),
+        ]
+
+        with self.assertRaises(ThreadsHTTPError):
+            await self.api.threads()
 
     async def test_publish_container_with_expired_credentials(self):
         with self.assertRaises(ThreadsAccessTokenExpired):
