@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import asyncio
 import logging
+import random
 from datetime import date, datetime
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Union
 
@@ -49,6 +51,15 @@ logger = logging.getLogger(__name__)
 
 
 class API:
+    """HTTP client for the Threads Graph API.
+
+    Options
+    - timeout: float seconds or aiohttp.ClientTimeout (default 30)
+    - base_url: override base API URL (default Threads' base URL)
+    - retries: number of retries for transient HTTP statuses (default 0)
+    - backoff_base: initial backoff seconds for retries (default 0.5)
+    - backoff_max: maximum backoff seconds (default 4.0)
+    """
     def __init__(
         self,
         credentials: Credentials,
@@ -56,6 +67,9 @@ class API:
         *,
         timeout: Optional[Union[float, aiohttp.ClientTimeout]] = 30,
         base_url: Optional[str] = None,
+        retries: int = 0,
+        backoff_base: float = 0.5,
+        backoff_max: float = 4.0,
     ) -> None:
         self.credentials = credentials
         self.external_session = session
@@ -63,6 +77,9 @@ class API:
         self.manage_session: bool = False
         self.timeout = timeout
         self.base_url = base_url
+        self.retries = max(0, int(retries))
+        self.backoff_base = float(backoff_base)
+        self.backoff_max = float(backoff_max)
 
     @property
     def session(self) -> Optional[aiohttp.ClientSession]:
@@ -107,19 +124,37 @@ class API:
         if self.session is None:
             raise RuntimeError("an API instance must have a session to handle requests")
         http_method = getattr(self.session, method)
-        async with http_method(url) as response:
-            status = getattr(response, "status", 200)
-            if isinstance(status, int) and status >= 400:
-                try:
-                    body = await response.json()
-                except Exception:
+        attempts = self.retries + 1
+        for i in range(1, attempts + 1):
+            async with http_method(url) as response:
+                status = getattr(response, "status", 200)
+                if isinstance(status, int) and status >= 400:
+                    # Retry only for transient or throttling statuses
+                    should_retry = status == 429 or 500 <= status <= 599
+                    if should_retry and i <= self.retries:
+                        delay = min(self.backoff_base * (2 ** (i - 1)) + random.uniform(0, 0.1), self.backoff_max)
+                        logger.debug(
+                            "Transient error %s on %s %s, retry %s/%s in %.2fs",
+                            status,
+                            method.upper(),
+                            url,
+                            i,
+                            self.retries,
+                            delay,
+                        )
+                        await asyncio.sleep(delay)
+                        continue
+
                     try:
-                        body = await response.text()
+                        body = await response.json()
                     except Exception:
-                        body = None
-                logger.debug("Request failed: %s %s -> %s", method.upper(), url, status)
-                raise ThreadsHTTPError(status, body)
-            return await response.json()
+                        try:
+                            body = await response.text()
+                        except Exception:
+                            body = None
+                    logger.debug("Request failed: %s %s -> %s", method.upper(), url, status)
+                    raise ThreadsHTTPError(status, body)
+                return await response.json()
 
     async def _get(self, url: str) -> Any:
         return await self._request("get", url)
