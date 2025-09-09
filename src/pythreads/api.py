@@ -4,14 +4,23 @@
 
 from dataclasses import dataclass
 from datetime import date, datetime
-from enum import Enum, StrEnum
+from enum import Enum
+try:  # Python < 3.11 compatibility
+    from enum import StrEnum  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - fallback for older Python
+    class StrEnum(str, Enum):
+        pass
 from json import JSONEncoder
 from typing import Any, Dict, Iterable, List, Literal, Optional, Sequence, Union
+
+import logging
 
 import aiohttp
 
 from pythreads.credentials import Credentials
 from pythreads.threads import Threads, ThreadsAccessTokenExpired
+
+logger = logging.getLogger(__name__)
 
 
 class Field(StrEnum):
@@ -72,19 +81,14 @@ DEFAULT_ACCOUNT_FIELDS = (
 )
 
 DEFAULT_PUBLISHING_LIMIT_FIELDS = (
-    Field.QUOTA_USAGE,
     Field.CONFIG,
-    Field.REPLY_QUOTA_USAGE,
+    Field.QUOTA_USAGE,
     Field.REPLY_CONFIG,
-    Field.DELETE_QUOTA_USAGE,
-    Field.DELETE_CONFIG,
-    Field.LOCATION_SEARCH_QUOTA_USAGE,
-    Field.LOCATION_SEARCH_CONFIG,
+    Field.REPLY_QUOTA_USAGE,
 )
 
 DEFAULT_THREAD_FIELDS = (
     Field.CHILDREN,
-    Field.GIF_URL,
     Field.ID,
     Field.IS_QUOTE_POST,
     Field.MEDIA_PRODUCT_TYPE,
@@ -92,18 +96,15 @@ DEFAULT_THREAD_FIELDS = (
     Field.MEDIA_URL,
     Field.OWNER,
     Field.PERMALINK,
-    Field.POLL_ATTACHMENT,
     Field.SHORTCODE,
     Field.TEXT,
     Field.THUMBNAIL_URL,
     Field.TIMESTAMP,
-    Field.TOPIC_TAG,
     Field.USERNAME,
 )
 
 DEFAULT_REPLY_FIELDS = (
     Field.CHILDREN,
-    Field.GIF_URL,
     Field.ID,
     Field.IS_QUOTE_POST,
     Field.MEDIA_PRODUCT_TYPE,
@@ -111,13 +112,10 @@ DEFAULT_REPLY_FIELDS = (
     Field.MEDIA_URL,
     Field.OWNER,
     Field.PERMALINK,
-    Field.POLL_ATTACHMENT,
-    Field.REPLIED_TO,
     Field.SHORTCODE,
     Field.TEXT,
     Field.THUMBNAIL_URL,
     Field.TIMESTAMP,
-    Field.TOPIC_TAG,
     Field.USERNAME,
 )
 
@@ -129,7 +127,6 @@ DEFAULT_METRIC_FIELDS = (
     Field.REPLIES,
     Field.REPOSTS,
     Field.VIEWS,
-    Field.SHARES,
 )
 
 USER_METRIC_TYPES = {
@@ -203,6 +200,13 @@ class ThreadsResponseError(Exception):
         self.response = response
 
 
+class ThreadsHTTPError(Exception):
+    def __init__(self, status: int, body: Any) -> None:
+        super().__init__(f"HTTP {status}: {body}")
+        self.status = status
+        self.body = body
+
+
 class MediaType(str, Enum):
     CAROUSEL = MEDIA_TYPE__CAROUSEL
     IMAGE = MEDIA_TYPE__IMAGE
@@ -257,6 +261,7 @@ class API:
         self.credentials = credentials
         self.external_session = session
         self._session = session
+        self.manage_session: bool = False
 
     @property
     def session(self) -> Optional[aiohttp.ClientSession]:
@@ -268,7 +273,8 @@ class API:
 
     async def __aenter__(self) -> "API":
         if not self.external_session:
-            self.session = aiohttp.ClientSession()
+            timeout = aiohttp.ClientTimeout(total=30)
+            self.session = aiohttp.ClientSession(timeout=timeout)
             self.manage_session = True
         else:
             self.session = self.external_session
@@ -285,19 +291,29 @@ class API:
 
         return self.credentials.access_token
 
-    async def _get(self, url: str) -> Any:
+    async def _request(self, method: str, url: str) -> Any:
         if self.session is None:
             raise RuntimeError("an API instance must have a session to handle requests")
-
-        async with self.session.get(url) as response:
+        http_method = getattr(self.session, method)
+        async with http_method(url) as response:
+            status = getattr(response, "status", 200)
+            if isinstance(status, int) and status >= 400:
+                try:
+                    body = await response.json()
+                except Exception:
+                    try:
+                        body = await response.text()
+                    except Exception:
+                        body = None
+                logger.debug("Request failed: %s %s -> %s", method.upper(), url, status)
+                raise ThreadsHTTPError(status, body)
             return await response.json()
+
+    async def _get(self, url: str) -> Any:
+        return await self._request("get", url)
 
     async def _post(self, url: str) -> Any:
-        if self.session is None:
-            raise RuntimeError("an API instance must have a session to handle requests")
-
-        async with self.session.post(url) as response:
-            return await response.json()
+        return await self._request("post", url)
 
     async def account(
         self,
@@ -957,7 +973,7 @@ class API:
         """
 
         access_token = self._access_token()
-        params: Dict[str, str] = {PARAMS__METRIC: ",".join(metric)}
+        params: Dict[str, str] = {PARAMS__FIELDS: ",".join(metric)}
 
         if since:
             params["since"] = str(int(since.timestamp()))

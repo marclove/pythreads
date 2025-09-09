@@ -15,6 +15,8 @@ from requests_oauthlib import OAuth2Session
 from pythreads.configuration import Configuration
 from pythreads.credentials import Credentials
 
+load_dotenv()
+
 THREADS_GRAPH_API_VERSION = os.getenv("THREADS_GRAPH_API_VERSION")
 GRAPH_API_BASE_URL = (
     f"https://graph.threads.net/{THREADS_GRAPH_API_VERSION}/"
@@ -22,19 +24,12 @@ GRAPH_API_BASE_URL = (
     else "https://graph.threads.net/"
 )
 
-load_dotenv()
-
-
-THREADS_SSL_CERT_FILEPATH = os.getenv("THREADS_SSL_CERT_FILEPATH", "")
-THREADS_SSL_KEY_FILEPATH = os.getenv("THREADS_SSL_KEY_FILEPATH", "")
-if not os.getenv("CI") and (
-    THREADS_SSL_CERT_FILEPATH == "" or THREADS_SSL_KEY_FILEPATH == ""
-):
-    raise RuntimeError(
-        "You must provide both an THREADS_SSL_CERT_FILEPATH and THREADS_SSL_KEY_FILEPATH in your environment for OAuth2 authentication and authorization"
-    )
-
-SSL_CREDENTIALS = (THREADS_SSL_CERT_FILEPATH, THREADS_SSL_KEY_FILEPATH)
+def get_ssl_credentials() -> tuple[str, str] | None:
+    cert = os.getenv("THREADS_SSL_CERT_FILEPATH", "")
+    key = os.getenv("THREADS_SSL_KEY_FILEPATH", "")
+    if cert and key:
+        return (cert, key)
+    return None
 
 
 class ThreadsAccessTokenExpired(RuntimeError): ...
@@ -44,25 +39,6 @@ class ThreadsAuthenticationError(RuntimeError): ...
 
 
 class Threads:
-    @staticmethod
-    def build_graph_api_url(
-        path, params: Union[dict, None] = None, access_token=None, base_url=None
-    ):
-        base_url = base_url or GRAPH_API_BASE_URL
-        full_path = f"{base_url}{path}"
-        query_components = []
-        if params:
-            query_components.append(f"{urlencode(params)}")
-        if access_token:
-            query_components.append(f"access_token={access_token}")
-        query_fragment = "&".join(query_components)
-
-        if len(query_fragment) > 0:
-            url = "?".join([full_path, query_fragment])
-        else:
-            url = full_path
-        return url
-
     """
     Authenticating with Threads is very simple. (NOTE: Ensure you've configured
     the necessary environment variables, as described in the README.)
@@ -89,8 +65,7 @@ class Threads:
         user's session or some other data store.
 
         >>> json = credentials.to_json()
-        '{ "user_id": "someid", "scopes": ["threads_basic"], "short_lived": false, "access_token": "someaccesstoken", "expiration": "2024-06-23T18:25:43.511Z" }
-
+        '{ "user_id": "someid", "scopes": ["threads_basic"], "short_lived": false, "access_token": "someaccesstoken", "expiration": "2024-06-23T18:25:43.511Z" }\n
         >>> Credentials.from_json(json)
         >>> Credentials(user_id="someid", scopes=["threads_basic"], short_lived=false, access_token="someaccesstoken", expiration=datetime.datetime(2024, 6, 23, 18, 25, 43, 121680, tzinfo=datetime.timezone.utc))
 
@@ -126,6 +101,28 @@ class Threads:
         exception will be raised.
 
     """
+
+    @staticmethod
+    def build_graph_api_url(
+        path, params: Union[dict, None] = None, access_token=None, base_url=None
+    ):
+        base_url = base_url or GRAPH_API_BASE_URL
+        full_path = f"{base_url}{path}"
+        query_components = []
+        if params:
+            # Ensure all values are strings for consistent encoding
+            sanitized = {k: str(v) for k, v in params.items()}
+            query_components.append(f"{urlencode(sanitized)}")
+        if access_token:
+            query_components.append(f"access_token={access_token}")
+        query_fragment = "&".join(query_components)
+
+        if len(query_fragment) > 0:
+            url = "?".join([full_path, query_fragment])
+        else:
+            url = full_path
+        return url
+
 
     ALL_SCOPES = [
         "threads_basic",
@@ -270,13 +267,15 @@ class Threads:
         )
 
         uri = Threads.build_graph_api_url("oauth/access_token")
-        response = session.fetch_token(
-            uri,
-            authorization_response=request_url,
-            cert=SSL_CREDENTIALS,
-            include_client_id=True,
-            client_secret=configuration.api_secret,
-        )
+        kwargs = {
+            "authorization_response": request_url,
+            "include_client_id": True,
+            "client_secret": configuration.api_secret,
+        }
+        cert = get_ssl_credentials()
+        if cert:
+            kwargs["cert"] = cert
+        response = session.fetch_token(uri, **kwargs)
 
         if "access_token" not in response:
             raise ThreadsAuthenticationError(
@@ -314,7 +313,8 @@ class Threads:
             },
             access_token=access_token,
         )
-        response = get(uri, cert=SSL_CREDENTIALS)
+        cert = get_ssl_credentials()
+        response = get(uri, cert=cert) if cert else get(uri)
         return Threads.__handle_long_lived_access_token_response(response)
 
     @staticmethod
@@ -336,7 +336,8 @@ class Threads:
             params={"grant_type": "th_refresh_token"},
             access_token=credentials.access_token,
         )
-        response = get(uri, cert=SSL_CREDENTIALS)
+        cert = get_ssl_credentials()
+        response = get(uri, cert=cert) if cert else get(uri)
         return Threads.__handle_long_lived_access_token_response(response)
 
     @staticmethod
