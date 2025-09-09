@@ -957,13 +957,13 @@ class API:
         """
 
         access_token = self._access_token()
-        params = {PARAMS__METRIC: ",".join(metric)}
+        params: Dict[str, str] = {PARAMS__METRIC: ",".join(metric)}
 
         if since:
-            params["since"] = int(since.timestamp())
+            params["since"] = str(int(since.timestamp()))
 
         if until:
-            params["until"] = int(until.timestamp())
+            params["until"] = str(int(until.timestamp()))
 
         url = Threads.build_graph_api_url(
             f"{thread_id}/insights",

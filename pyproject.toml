@@ -38,6 +38,21 @@ dependencies = [
   "requests-oauthlib==2.0.*",
 ]
 
+[project.optional-dependencies]
+dev = [
+  # Testing & Coverage
+  "pytest",
+  "pytest-cov",
+  "coverage[toml]",
+  # Linting & Types
+  "ruff",
+  "pyright>=1.1.371",
+  # Docs
+  "sphinx",
+  "furo",
+  "myst-parser",
+]
+
 [project.urls]
 Homepage = "https://github.com/marclove/pythreads"
 Documentation = "https://github.com/marclove/pythreads#readme"
@@ -49,60 +64,6 @@ path = "src/pythreads/__about__.py"
 
 [tool.hatch.build.targets.sdist]
 exclude = [".github/*", ".env.template"]
-
-### Environments ###
-
-[tool.hatch.envs.default]
-python = "3.12"
-
-[tool.hatch.envs.docs]
-extra-dependencies = ["sphinx", "furo", "myst-parser"]
-
-[tool.hatch.envs.docs.scripts]
-build = "cd docs && make html"
-
-# Lint environment
-
-[tool.hatch.envs.lint]
-extra-dependencies = [
-  "pyright>=1.1.371",
-  "ruff",
-  "pytest",
-] # pytest needed for linting checks
-
-[tool.hatch.envs.lint.scripts]
-pyright-run = "pyright {args:.}"
-ruff-run = "ruff check --fix {args:.}"
-watch = "ruff check --watch {args:.}"
-all = ["pyright-run", "ruff-run"]
-
-# Code coverage environment
-
-[tool.hatch.envs.coverage]
-extra-dependencies = ["coverage[toml]", "pytest", "pytest-cov"]
-
-[tool.hatch.envs.coverage.scripts]
-all = 'pytest -m "not smoke" --cov-config=pyproject.toml --cov=src/pythreads'
-generate = 'coverage html'
-clean = "coverage erase"
-
-# Test environments
-
-[[tool.hatch.envs.test.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
-
-[tool.hatch.envs.test]
-extra-dependencies = ["pytest"]
-
-[tool.hatch.envs.test.scripts]
-all = 'pytest -m "not smoke" {args:.}'
-smoke = 'pytest -m "smoke" {args:.}'
-
-[tool.hatch.envs.smoke-test]
-extra-dependencies = ["pytest"]
-
-[tool.hatch.envs.smoke-test.scripts]
-all = 'pytest -m "smoke" {args:.}'
 
 
 ### Testing ###
@@ -127,3 +88,15 @@ tests = ["tests", "*/pythreads/tests"]
 
 [tool.coverage.report]
 exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
+
+### Pyright ###
+
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+include = ["src", "tests"]
+exclude = [".venv", "docs/build", "build", "dist"]
+extraPaths = ["src"]
+# Allow Pyright to discover the uv-managed virtual env in ./.venv
+venvPath = "."
+venv = ".venv"

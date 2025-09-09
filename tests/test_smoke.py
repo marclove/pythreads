@@ -42,7 +42,7 @@ class APITest(unittest.IsolatedAsyncioTestCase):
     # oauth token. Add these in your environment variables and run the smoke
     # tests:
     #
-    # >>> hatch run smoke-test:all
+    # >>> uv run pytest -m "smoke"
     #
 
     async def asyncSetUp(self):
