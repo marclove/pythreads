@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Literal, Optional
+from typing import Literal, Optional, TypedDict, Dict, Any, List
 
 
 # Python < 3.11 compatibility for StrEnum
@@ -226,3 +226,50 @@ class ContainerStatus:
     id: str
     status: PublishingStatus
     error: Optional[PublishingError] = None
+
+
+# ---------- Typed response helpers (lightweight, partial schemas) ----------
+
+JSONDict = Dict[str, Any]
+
+
+class AccountResponse(TypedDict, total=False):
+    username: str
+    threads_biography: str
+    threads_profile_picture_url: str
+
+
+class PublishingQuotaConfig(TypedDict, total=False):
+    quota_total: int
+    quota_duration: int
+
+
+class PublishingLimitEntry(TypedDict, total=False):
+    config: PublishingQuotaConfig
+    quota_usage: int
+    reply_config: PublishingQuotaConfig
+    reply_quota_usage: int
+
+
+class PublishingLimitResponse(TypedDict):
+    data: List[PublishingLimitEntry]
+
+
+class InsightsValue(TypedDict, total=False):
+    value: int
+    end_time: str
+
+
+class InsightsDataItem(TypedDict, total=False):
+    name: str
+    period: str
+    values: List[InsightsValue]
+    total_value: Dict[str, Any]
+    id: str
+    title: str
+    description: str
+
+
+class InsightsResponse(TypedDict, total=False):
+    data: List[InsightsDataItem]
+    paging: Dict[str, Any]

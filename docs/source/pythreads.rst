@@ -6,6 +6,32 @@ API Module
    :undoc-members:
    :show-inheritance:
 
+Endpoints
+--------------------
+
+These modules implement the endpoint groups used by the API facade. They are
+organized by responsibility and delegate HTTP to a shared Transport.
+
+.. automodule:: pythreads.api.endpoints.accounts
+   :members:
+   :undoc-members:
+
+.. automodule:: pythreads.api.endpoints.threads
+   :members:
+   :undoc-members:
+
+.. automodule:: pythreads.api.endpoints.media
+   :members:
+   :undoc-members:
+
+.. automodule:: pythreads.api.endpoints.insights
+   :members:
+   :undoc-members:
+
+.. automodule:: pythreads.api.endpoints.moderation
+   :members:
+   :undoc-members:
+
 API Options
 --------------------
 

@@ -212,7 +212,7 @@ class API:
         self,
         user_id: str = "me",
         fields: Sequence[str] = DEFAULT_ACCOUNT_FIELDS,
-    ) -> Any:
+    ) -> 'AccountResponse':
         assert self.accounts is not None
         return await self.accounts.account(user_id=user_id, fields=fields)
 
@@ -222,7 +222,7 @@ class API:
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
         breakdown: Optional[FollowerDemographicType] = None,
-    ) -> Any:
+    ) -> 'InsightsResponse':
         assert self.insights_service is not None
         return await self.insights_service.user_insights(
             metrics, since=since, until=until, breakdown=breakdown
@@ -230,7 +230,7 @@ class API:
 
     async def publishing_limit(
         self, fields: Sequence[str] = DEFAULT_PUBLISHING_LIMIT_FIELDS
-    ) -> Any:
+    ) -> 'PublishingLimitResponse':
         assert self.accounts is not None
         return await self.accounts.publishing_limit(fields=fields)
 
@@ -291,7 +291,7 @@ class API:
         limit: Optional[int] = None,
         before: Optional[str] = None,
         after: Optional[str] = None,
-    ):
+    ) -> 'InsightsResponse':
         assert self.threads_service is not None
         return await self.threads_service.threads(
             user_id=user_id,
