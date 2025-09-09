@@ -34,7 +34,7 @@ class ThreadsService:
         limit: Optional[int] = None,
         before: Optional[str] = None,
         after: Optional[str] = None,
-    ):
+        *, request_options: dict | None = None):
         params: Dict[str, str] = {PARAMS__FIELDS: ",".join(fields)}
         if since:
             params[PARAMS__SINCE] = iso_date_or_str(since)
@@ -48,11 +48,11 @@ class ThreadsService:
             params[PARAMS__AFTER] = after
 
         uid = user_id or self.credentials.user_id
-        return await self.transport.get(f"{uid}/threads", params)
+        return await self.transport.get(f"{uid}/threads", params, request_options)
 
-    async def replies(self, thread_id: str, fields: Iterable[str] = DEFAULT_REPLY_FIELDS):
+    async def replies(self, thread_id: str, fields: Iterable[str] = DEFAULT_REPLY_FIELDS, *, request_options: dict | None = None):
         return await self.transport.get(
-            f"{thread_id}/replies", {PARAMS__FIELDS: ",".join(fields)}
+            f"{thread_id}/replies", {PARAMS__FIELDS: ",".join(fields)}, request_options
         )
 
     async def conversation(
@@ -61,13 +61,13 @@ class ThreadsService:
         fields: Iterable[str] = DEFAULT_CONVERSATION_FIELDS,
         before: Optional[str] = None,
         after: Optional[str] = None,
-    ):
+        *, request_options: dict | None = None):
         params: Dict[str, str] = {PARAMS__FIELDS: ",".join(fields)}
         if before:
             params[PARAMS__BEFORE] = before
         if after:
             params[PARAMS__AFTER] = after
-        return await self.transport.get(f"{thread_id}/conversation", params)
+        return await self.transport.get(f"{thread_id}/conversation", params, request_options)
 
     # ---------------------- Iterators (convenience) ----------------------
 

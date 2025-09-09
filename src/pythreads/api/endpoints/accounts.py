@@ -19,11 +19,11 @@ class AccountsService:
         self.transport = transport
         self.credentials = credentials
 
-    async def account(self, user_id: str = "me", fields: Sequence[str] = DEFAULT_ACCOUNT_FIELDS) -> AccountResponse:
-        return await self.transport.get(user_id, {PARAMS__FIELDS: ",".join(fields)})
+    async def account(self, user_id: str = "me", fields: Sequence[str] = DEFAULT_ACCOUNT_FIELDS, *, request_options: dict | None = None) -> AccountResponse:
+        return await self.transport.get(user_id, {PARAMS__FIELDS: ",".join(fields)}, request_options)
 
-    async def publishing_limit(self, fields: Sequence[str] = DEFAULT_PUBLISHING_LIMIT_FIELDS) -> PublishingLimitResponse:
+    async def publishing_limit(self, fields: Sequence[str] = DEFAULT_PUBLISHING_LIMIT_FIELDS, *, request_options: dict | None = None) -> PublishingLimitResponse:
         user_id = self.credentials.user_id
         return await self.transport.get(
-            f"{user_id}/threads_publishing_limit", {PARAMS__FIELDS: ",".join(fields)}
+            f"{user_id}/threads_publishing_limit", {PARAMS__FIELDS: ",".join(fields)}, request_options
         )

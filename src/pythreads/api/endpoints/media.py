@@ -38,7 +38,7 @@ class MediaService:
         reply_control: ReplyControl = ReplyControl.EVERYONE,
         reply_to_id: Optional[str] = None,
         is_carousel_item: bool = False,
-    ) -> str:
+        *, request_options: dict | None = None) -> str:
         params: Dict[str, Union[str, bool, List[str], None]] = {
             PARAMS__REPLY_CONTROL: reply_control.value,
         }
@@ -61,7 +61,7 @@ class MediaService:
             params[PARAMS__IMAGE_URL] = media and media.url
 
         user_id = self.credentials.user_id
-        response: Dict[str, Any] = await self.transport.post(f"{user_id}/threads", params)
+        response: Dict[str, Any] = await self.transport.post(f"{user_id}/threads", params, request_options)
         if "id" not in response:
             raise ThreadsResponseError(response)
         return response["id"]
@@ -72,7 +72,7 @@ class MediaService:
         text: Optional[str] = None,
         reply_control: ReplyControl = ReplyControl.EVERYONE,
         reply_to_id: Optional[str] = None,
-    ) -> str:
+        *, request_options: dict | None = None) -> str:
         num_media = len(containers)
         if num_media < 2 or num_media > 10:
             raise ThreadsInvalidParameter("a carousel post requires 2-10 media items")
@@ -98,12 +98,12 @@ class MediaService:
             params[PARAMS__REPLY_TO_ID] = reply_to_id
 
         user_id = self.credentials.user_id
-        response: Dict[str, Any] = await self.transport.post(f"{user_id}/threads", params)
+        response: Dict[str, Any] = await self.transport.post(f"{user_id}/threads", params, request_options)
         if "id" not in response:
             raise ThreadsResponseError(response)
         return response["id"]
 
-    async def container_status(self, media_id: str) -> ContainerStatus:
+    async def container_status(self, media_id: str, *, request_options: dict | None = None) -> ContainerStatus:
         result: Dict[str, Any] = await self.transport.get(
             f"{media_id}",
             {
@@ -114,7 +114,7 @@ class MediaService:
                         Field.ERROR_MESSAGE,
                     ]
                 )
-            },
+            }, request_options
         )
 
         status_str = result.get("status", PublishingStatus.ERROR)
@@ -128,16 +128,16 @@ class MediaService:
         media = ContainerStatus(id=result["id"], status=status, error=error)
         return media
 
-    async def publish_container(self, container_id: str) -> str:
+    async def publish_container(self, container_id: str, *, request_options: dict | None = None) -> str:
         user_id = self.credentials.user_id
         response: Dict[str, Any] = await self.transport.post(
-            f"{user_id}/threads_publish", {"creation_id": container_id}
+            f"{user_id}/threads_publish", {"creation_id": container_id}, request_options
         )
         if "id" not in response:
             raise ThreadsResponseError(response)
         return response["id"]
 
-    async def container(self, container_id: str):
+    async def container(self, container_id: str, *, request_options: dict | None = None):
         return await self.transport.get(
             f"{container_id}",
             {
@@ -158,9 +158,8 @@ class MediaService:
                         Field.USERNAME,
                     ]
                 )
-            },
+            }, request_options
         )
 
-    async def thread(self, thread_id: str):
-        return await self.container(container_id=thread_id)
-
+    async def thread(self, thread_id: str, *, request_options: dict | None = None):
+        return await self.container(container_id=thread_id, request_options=request_options)

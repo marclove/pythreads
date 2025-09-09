@@ -11,6 +11,7 @@ from pythreads.credentials import Credentials
 from pythreads.threads import Threads, ThreadsAccessTokenExpired
 
 from .errors import ThreadsHTTPError
+from .types import RequestOptions
 
 logger = logging.getLogger(__name__)
 
@@ -46,24 +47,35 @@ class Transport:
             raise ThreadsAccessTokenExpired()
         return self.credentials.access_token
 
-    def _build_url(self, path: str, params: Dict[str, Any]) -> str:
+    def _build_url(self, path: str, params: Dict[str, Any], base_url_override: Optional[str] = None) -> str:
         access_token = self._access_token()
-        if self.base_url:
-            return Threads.build_graph_api_url(path, params, access_token, self.base_url)
+        base = base_url_override or self.base_url
+        if base:
+            return Threads.build_graph_api_url(path, params, access_token, base)
         return Threads.build_graph_api_url(path, params, access_token)
 
-    async def _request_url(self, method: str, url: str) -> Any:
+    async def _request_url(self, method: str, url: str, options: Optional[RequestOptions] = None) -> Any:
         http_method = getattr(self.session, method)
-        attempts = self.retries + 1
+        retries = int(options.get("retries", self.retries)) if options else self.retries
+        backoff_base = float(options.get("backoff_base", self.backoff_base)) if options else self.backoff_base
+        backoff_max = float(options.get("backoff_max", self.backoff_max)) if options else self.backoff_max
+        timeout_opt = options.get("timeout") if options else None
+
+        attempts = retries + 1
         for i in range(1, attempts + 1):
-            async with http_method(url) as response:
+            if timeout_opt is not None:
+                timeout = aiohttp.ClientTimeout(total=float(timeout_opt))
+                cm = http_method(url, timeout=timeout)
+            else:
+                cm = http_method(url)
+            async with cm as response:
                 status = getattr(response, "status", 200)
                 if isinstance(status, int) and status >= 400:
                     should_retry = status == 429 or 500 <= status <= 599
-                    if should_retry and i <= self.retries:
+                    if should_retry and i <= retries:
                         delay = min(
-                            self.backoff_base * (2 ** (i - 1)) + random.uniform(0, 0.1),
-                            self.backoff_max,
+                            backoff_base * (2 ** (i - 1)) + random.uniform(0, 0.1),
+                            backoff_max,
                         )
                         logger.debug(
                             "Transient error %s on %s %s, retry %s/%s in %.2fs",
@@ -71,7 +83,7 @@ class Transport:
                             method.upper(),
                             url,
                             i,
-                            self.retries,
+                            retries,
                             delay,
                         )
                         await asyncio.sleep(delay)
@@ -88,11 +100,12 @@ class Transport:
                     raise ThreadsHTTPError(status, body)
                 return await response.json()
 
-    async def get(self, path: str, params: Optional[Dict[str, Any]] = None) -> Any:
-        url = self._build_url(path, params or {})
-        return await self._request_url("get", url)
+    async def get(self, path: str, params: Optional[Dict[str, Any]] = None, options: Optional[RequestOptions] = None) -> Any:
+        base_override = options.get("base_url") if options else None
+        url = self._build_url(path, params or {}, base_override)
+        return await self._request_url("get", url, options)
 
-    async def post(self, path: str, params: Optional[Dict[str, Any]] = None) -> Any:
-        url = self._build_url(path, params or {})
-        return await self._request_url("post", url)
-
+    async def post(self, path: str, params: Optional[Dict[str, Any]] = None, options: Optional[RequestOptions] = None) -> Any:
+        base_override = options.get("base_url") if options else None
+        url = self._build_url(path, params or {}, base_override)
+        return await self._request_url("post", url, options)

@@ -273,3 +273,11 @@ class InsightsDataItem(TypedDict, total=False):
 class InsightsResponse(TypedDict, total=False):
     data: List[InsightsDataItem]
     paging: Dict[str, Any]
+
+
+class RequestOptions(TypedDict, total=False):
+    retries: int
+    backoff_base: float
+    backoff_max: float
+    base_url: str
+    timeout: float

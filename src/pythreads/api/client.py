@@ -212,9 +212,10 @@ class API:
         self,
         user_id: str = "me",
         fields: Sequence[str] = DEFAULT_ACCOUNT_FIELDS,
+        *, request_options: dict | None = None
     ) -> 'AccountResponse':
         assert self.accounts is not None
-        return await self.accounts.account(user_id=user_id, fields=fields)
+        return await self.accounts.account(user_id=user_id, fields=fields, request_options=request_options)
 
     async def user_insights(
         self,
@@ -222,17 +223,19 @@ class API:
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
         breakdown: Optional[FollowerDemographicType] = None,
+        *, request_options: dict | None = None
     ) -> 'InsightsResponse':
         assert self.insights_service is not None
         return await self.insights_service.user_insights(
-            metrics, since=since, until=until, breakdown=breakdown
+            metrics, since=since, until=until, breakdown=breakdown, request_options=request_options
         )
 
     async def publishing_limit(
-        self, fields: Sequence[str] = DEFAULT_PUBLISHING_LIMIT_FIELDS
+        self, fields: Sequence[str] = DEFAULT_PUBLISHING_LIMIT_FIELDS,
+        *, request_options: dict | None = None
     ) -> 'PublishingLimitResponse':
         assert self.accounts is not None
-        return await self.accounts.publishing_limit(fields=fields)
+        return await self.accounts.publishing_limit(fields=fields, request_options=request_options)
 
     async def create_container(
         self,
@@ -241,6 +244,7 @@ class API:
         reply_control: ReplyControl = ReplyControl.EVERYONE,
         reply_to_id: Optional[str] = None,
         is_carousel_item: bool = False,
+        *, request_options: dict | None = None
     ) -> str:
         assert self.media_service is not None
         return await self.media_service.create_container(
@@ -249,6 +253,7 @@ class API:
             reply_control=reply_control,
             reply_to_id=reply_to_id,
             is_carousel_item=is_carousel_item,
+            request_options=request_options,
         )
 
     async def create_carousel_container(
@@ -257,6 +262,7 @@ class API:
         text: Optional[str] = None,
         reply_control: ReplyControl = ReplyControl.EVERYONE,
         reply_to_id: Optional[str] = None,
+        *, request_options: dict | None = None
     ) -> str:
         assert self.media_service is not None
         return await self.media_service.create_carousel_container(
@@ -264,23 +270,24 @@ class API:
             text=text,
             reply_control=reply_control,
             reply_to_id=reply_to_id,
+            request_options=request_options,
         )
 
-    async def container_status(self, media_id: str) -> ContainerStatus:
+    async def container_status(self, media_id: str, *, request_options: dict | None = None) -> ContainerStatus:
         assert self.media_service is not None
-        return await self.media_service.container_status(media_id)
+        return await self.media_service.container_status(media_id, request_options=request_options)
 
-    async def publish_container(self, container_id: str) -> str:
+    async def publish_container(self, container_id: str, *, request_options: dict | None = None) -> str:
         assert self.media_service is not None
-        return await self.media_service.publish_container(container_id)
+        return await self.media_service.publish_container(container_id, request_options=request_options)
 
-    async def container(self, container_id: str):
+    async def container(self, container_id: str, *, request_options: dict | None = None):
         assert self.media_service is not None
-        return await self.media_service.container(container_id)
+        return await self.media_service.container(container_id, request_options=request_options)
 
-    async def thread(self, thread_id: str):
+    async def thread(self, thread_id: str, *, request_options: dict | None = None):
         assert self.media_service is not None
-        return await self.media_service.thread(thread_id)
+        return await self.media_service.thread(thread_id, request_options=request_options)
 
     async def threads(
         self,
@@ -291,7 +298,8 @@ class API:
         limit: Optional[int] = None,
         before: Optional[str] = None,
         after: Optional[str] = None,
-    ) -> 'InsightsResponse':
+        *, request_options: dict | None = None
+    ):
         assert self.threads_service is not None
         return await self.threads_service.threads(
             user_id=user_id,
@@ -301,13 +309,14 @@ class API:
             limit=limit,
             before=before,
             after=after,
+            request_options=request_options,
         )
 
     async def replies(
-        self, thread_id: str, fields: Iterable[str] = DEFAULT_REPLY_FIELDS
+        self, thread_id: str, fields: Iterable[str] = DEFAULT_REPLY_FIELDS, *, request_options: dict | None = None
     ):
         assert self.threads_service is not None
-        return await self.threads_service.replies(thread_id, fields)
+        return await self.threads_service.replies(thread_id, fields, request_options=request_options)
 
     async def conversation(
         self,
@@ -315,10 +324,11 @@ class API:
         fields: Iterable[str] = DEFAULT_CONVERSATION_FIELDS,
         before: Optional[str] = None,
         after: Optional[str] = None,
+        *, request_options: dict | None = None
     ):
         assert self.threads_service is not None
         return await self.threads_service.conversation(
-            thread_id, fields=fields, before=before, after=after
+            thread_id, fields=fields, before=before, after=after, request_options=request_options
         )
 
     # Convenience async iterators (expose service iterators)
@@ -365,9 +375,9 @@ class API:
             thread_id, fields=fields, per_page=per_page, page_limit=page_limit
         )
 
-    async def manage_reply(self, reply_id: str, hide: bool):
+    async def manage_reply(self, reply_id: str, hide: bool, *, request_options: dict | None = None):
         assert self.moderation_service is not None
-        return await self.moderation_service.manage_reply(reply_id, hide)
+        return await self.moderation_service.manage_reply(reply_id, hide, request_options=request_options)
 
     async def insights(
         self,
@@ -375,8 +385,9 @@ class API:
         metric: Sequence[str] = DEFAULT_METRIC_FIELDS,
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
-    ):
+        *, request_options: dict | None = None
+    ) -> 'InsightsResponse':
         assert self.insights_service is not None
         return await self.insights_service.insights(
-            thread_id, metric=metric, since=since, until=until
+            thread_id, metric=metric, since=since, until=until, request_options=request_options
         )

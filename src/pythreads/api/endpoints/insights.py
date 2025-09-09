@@ -31,7 +31,7 @@ class InsightsService:
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
         breakdown: Optional[FollowerDemographicType] = None,
-    ) -> InsightsResponse:
+        *, request_options: dict | None = None) -> InsightsResponse:
         if isinstance(metrics, str):
             metrics = [metrics]
 
@@ -60,7 +60,7 @@ class InsightsService:
             params["breakdown"] = breakdown
 
         user_id = self.credentials.user_id
-        return await self.transport.get(f"{user_id}/threads_insights", params)
+        return await self.transport.get(f"{user_id}/threads_insights", params, request_options)
 
     async def insights(
         self,
@@ -68,11 +68,11 @@ class InsightsService:
         metric: Sequence[str] = DEFAULT_METRIC_FIELDS,
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
-    ) -> InsightsResponse:
+        *, request_options: dict | None = None) -> InsightsResponse:
         params: Dict[str, str] = {PARAMS__FIELDS: ",".join(metric)}
         if since:
             params["since"] = ts_to_str(since)
         if until:
             params["until"] = ts_to_str(until)
 
-        return await self.transport.get(f"{thread_id}/insights", params)
+        return await self.transport.get(f"{thread_id}/insights", params, request_options)
