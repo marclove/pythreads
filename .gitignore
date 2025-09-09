@@ -167,3 +167,4 @@ flask_session/
 
 # PEM files
 *.pem
+/llmc.toml
