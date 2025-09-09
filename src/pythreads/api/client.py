@@ -4,7 +4,7 @@ import asyncio
 import logging
 import random
 from datetime import date, datetime
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Union, AsyncIterator
 
 import aiohttp
 
@@ -319,6 +319,50 @@ class API:
         assert self.threads_service is not None
         return await self.threads_service.conversation(
             thread_id, fields=fields, before=before, after=after
+        )
+
+    # Convenience async iterators (expose service iterators)
+    async def threads_iter(
+        self,
+        user_id: str | None = None,
+        fields: Iterable[str] = DEFAULT_THREAD_FIELDS,
+        since: Optional[Union[date, str]] = None,
+        until: Optional[Union[date, str]] = None,
+        per_page: int = 25,
+        page_limit: Optional[int] = None,
+    ) -> AsyncIterator[Dict[str, Any]]:
+        assert self.threads_service is not None
+        return self.threads_service.threads_iter(
+            user_id=user_id,
+            fields=fields,
+            since=since,
+            until=until,
+            per_page=per_page,
+            page_limit=page_limit,
+        )
+
+    async def replies_iter(
+        self,
+        thread_id: str,
+        fields: Iterable[str] = DEFAULT_REPLY_FIELDS,
+        per_page: int = 25,
+        page_limit: Optional[int] = None,
+    ) -> AsyncIterator[Dict[str, Any]]:
+        assert self.threads_service is not None
+        return self.threads_service.replies_iter(
+            thread_id, fields=fields, per_page=per_page, page_limit=page_limit
+        )
+
+    async def conversation_iter(
+        self,
+        thread_id: str,
+        fields: Iterable[str] = DEFAULT_CONVERSATION_FIELDS,
+        per_page: int = 25,
+        page_limit: Optional[int] = None,
+    ) -> AsyncIterator[Dict[str, Any]]:
+        assert self.threads_service is not None
+        return self.threads_service.conversation_iter(
+            thread_id, fields=fields, per_page=per_page, page_limit=page_limit
         )
 
     async def manage_reply(self, reply_id: str, hide: bool):

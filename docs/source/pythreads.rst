@@ -20,6 +20,17 @@ organized by responsibility and delegate HTTP to a shared Transport.
    :members:
    :undoc-members:
 
+Iterators
+^^^^^^^^^
+
+The threads endpoint module provides async iterators for convenience:
+
+- ``threads_iter`` paginates through a user's threads
+- ``replies_iter`` paginates through replies for a thread
+- ``conversation_iter`` paginates through a flattened conversation
+
+Each yields items from the ``data`` array and follows the ``paging.cursors.after`` cursor.
+
 .. automodule:: pythreads.api.endpoints.media
    :members:
    :undoc-members:

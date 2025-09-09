@@ -17,6 +17,7 @@ from ..types import (
     Field,
     InsightsResponse,
 )
+from ..utils import ts_to_str
 
 
 class InsightsService:
@@ -70,8 +71,8 @@ class InsightsService:
     ) -> InsightsResponse:
         params: Dict[str, str] = {PARAMS__FIELDS: ",".join(metric)}
         if since:
-            params["since"] = str(int(since.timestamp()))
+            params["since"] = ts_to_str(since)
         if until:
-            params["until"] = str(int(until.timestamp()))
+            params["until"] = ts_to_str(until)
 
         return await self.transport.get(f"{thread_id}/insights", params)

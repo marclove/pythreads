@@ -249,6 +249,20 @@ async with API(self.credentials) as api:
     # carousel_id == result_id
 ```
 
+### Iterating over pages
+Use the built-in async iterators to page through results without manually handling cursors:
+
+```python
+async with API(credentials) as api:
+    # Iterate a user's threads (2 pages of 50 items)
+    async for t in api.threads_iter(per_page=50, page_limit=2):
+        print(t["id"], t.get("text"))
+
+    # Iterate replies for a thread
+    async for r in api.replies_iter(thread_id="1234567890", per_page=25):
+        print(r["id"], r.get("text"))
+```
+
 A few key things to point out above:
 
 1. Creating media containers requires you to put the image or video at a

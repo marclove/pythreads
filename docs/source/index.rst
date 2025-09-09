@@ -6,6 +6,7 @@ Welcome to PyThreads' documentation!
    :caption: Contents:
    
    pythreads
+   architecture
 
 .. include:: ../../README.md
    :parser: myst_parser.sphinx_
