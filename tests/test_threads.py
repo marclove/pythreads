@@ -8,7 +8,7 @@ from unittest.mock import ANY, MagicMock, patch
 
 from pythreads.configuration import Configuration
 from pythreads.credentials import Credentials
-from pythreads.threads import Threads, ThreadsAccessTokenExpired
+from pythreads.threads import Threads, ThreadsAccessTokenExpired, get_ssl_credentials
 
 
 class ThreadsTest(unittest.TestCase):
@@ -116,6 +116,19 @@ class ThreadsTest(unittest.TestCase):
             redirect_uri=self.configuration.redirect_uri,
         )
         self.assertEqual(actual, expected)
+
+    def test_get_ssl_credentials_missing(self):
+        import os
+
+        prev_cert = os.environ.pop("THREADS_SSL_CERT_FILEPATH", None)
+        prev_key = os.environ.pop("THREADS_SSL_KEY_FILEPATH", None)
+        try:
+            assert get_ssl_credentials() is None
+        finally:
+            if prev_cert is not None:
+                os.environ["THREADS_SSL_CERT_FILEPATH"] = prev_cert
+            if prev_key is not None:
+                os.environ["THREADS_SSL_KEY_FILEPATH"] = prev_key
 
     @patch("pythreads.threads.Threads.fetch_long_lived_token")
     @patch("pythreads.threads.Threads.fetch_user_id_and_token")
