@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: MIT
 
 import os
-from typing import Optional, Tuple
+from typing import Tuple
 
 try:
     from dotenv import load_dotenv
 except Exception:  # fallback if python-dotenv isn't available
-    def load_dotenv(*args, **kwargs):  # type: ignore[no-redef]
+    def load_dotenv(*args, **kwargs) -> bool:  # type: ignore[misc]
         return False
 
 

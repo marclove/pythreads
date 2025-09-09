@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Dict, List, Optional, Sequence, Union
 
 from pythreads.credentials import Credentials
 
@@ -16,6 +16,7 @@ from ..types import (
     PARAMS__METRIC,
     Field,
     InsightsResponse,
+    RequestOptions,
 )
 from ..utils import ts_to_str
 
@@ -31,7 +32,7 @@ class InsightsService:
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
         breakdown: Optional[FollowerDemographicType] = None,
-        *, request_options: dict | None = None) -> InsightsResponse:
+        *, request_options: RequestOptions | None = None) -> InsightsResponse:
         if isinstance(metrics, str):
             metrics = [metrics]
 
@@ -68,7 +69,7 @@ class InsightsService:
         metric: Sequence[str] = DEFAULT_METRIC_FIELDS,
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
-        *, request_options: dict | None = None) -> InsightsResponse:
+        *, request_options: RequestOptions | None = None) -> InsightsResponse:
         params: Dict[str, str] = {PARAMS__FIELDS: ",".join(metric)}
         if since:
             params["since"] = ts_to_str(since)

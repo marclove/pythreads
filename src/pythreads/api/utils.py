@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, date
-from typing import Any, AsyncIterator, Dict, Iterable, Optional, Union
+from typing import Any, Dict, Iterable, Optional
 
 
 def ts_to_str(dt: datetime) -> str:
@@ -59,20 +59,48 @@ class PaginatedIterator:
         
         return params
     
-    async def __aiter__(self) -> AsyncIterator[Dict[str, Any]]:
+    def __aiter__(self):
         """Async iterator implementation."""
-        while True:
+        return self
+
+    async def __anext__(self) -> Dict[str, Any]:
+        """Async next implementation."""
+        # Initialize state if needed
+        if not hasattr(self, '_current_data'):
+            self._current_data = []
+            self._current_index = 0
+        
+        # If we've consumed all items in current page
+        while self._current_index >= len(self._current_data):
+            # Fetch next page
             params = self._build_params()
             response = await self.transport.get(self.endpoint, params)
             
-            for item in response.get("data", []):
-                yield item
+            self._current_data = response.get("data", [])
+            self._current_index = 0
+            
+            # Check if we have data
+            if not self._current_data:
+                # Check pagination limits
+                if self.page_limit is not None and self.pages >= self.page_limit:
+                    raise StopAsyncIteration
+                
+                # Check for next page cursor
+                self.after = response.get("paging", {}).get("cursors", {}).get("after")
+                if not self.after:
+                    raise StopAsyncIteration
+                
+                self.pages += 1
+                continue
             
             self.pages += 1
-            if self.page_limit is not None and self.pages >= self.page_limit:
-                break
-            
-            self.after = response.get("paging", {}).get("cursors", {}).get("after")
-            if not self.after:
-                break
+            break
+        
+        # Return next item
+        if self._current_index < len(self._current_data):
+            item = self._current_data[self._current_index]
+            self._current_index += 1
+            return item
+        
+        raise StopAsyncIteration
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Dict, Iterable, Optional, Union, AsyncIterator, Any
+from typing import Dict, Iterable, Optional, Union
 
 from pythreads.credentials import Credentials
 
@@ -17,6 +17,7 @@ from ..types import (
     PARAMS__SINCE,
     PARAMS__UNTIL,
     RepliesResponse,
+    RequestOptions,
     ThreadsListResponse,
 )
 from ..utils import iso_date_or_str, PaginatedIterator
@@ -73,7 +74,7 @@ class ThreadsService:
         limit: Optional[int] = None,
         before: Optional[str] = None,
         after: Optional[str] = None,
-        *, request_options: dict | None = None) -> ThreadsListResponse:
+        *, request_options: RequestOptions | None = None) -> ThreadsListResponse:
         params: Dict[str, str] = {PARAMS__FIELDS: ",".join(fields)}
         if since:
             params[PARAMS__SINCE] = iso_date_or_str(since)
@@ -89,7 +90,7 @@ class ThreadsService:
         uid = user_id or self.credentials.user_id
         return await self.transport.get(f"{uid}/threads", params, request_options)
 
-    async def replies(self, thread_id: str, fields: Iterable[str] = DEFAULT_REPLY_FIELDS, *, request_options: dict | None = None) -> RepliesResponse:
+    async def replies(self, thread_id: str, fields: Iterable[str] = DEFAULT_REPLY_FIELDS, *, request_options: RequestOptions | None = None) -> RepliesResponse:
         return await self.transport.get(
             f"{thread_id}/replies", {PARAMS__FIELDS: ",".join(fields)}, request_options
         )
@@ -100,7 +101,7 @@ class ThreadsService:
         fields: Iterable[str] = DEFAULT_CONVERSATION_FIELDS,
         before: Optional[str] = None,
         after: Optional[str] = None,
-        *, request_options: dict | None = None) -> ConversationResponse:
+        *, request_options: RequestOptions | None = None) -> ConversationResponse:
         params: Dict[str, str] = {PARAMS__FIELDS: ",".join(fields)}
         if before:
             params[PARAMS__BEFORE] = before
@@ -118,7 +119,7 @@ class ThreadsService:
         until: Optional[Union[date, str]] = None,
         per_page: int = 25,
         page_limit: Optional[int] = None,
-    ) -> AsyncIterator[Dict[str, Any]]:
+    ) -> ThreadsIterator:
         uid = user_id or self.credentials.user_id
         return ThreadsIterator(
             transport=self.transport,
@@ -136,7 +137,7 @@ class ThreadsService:
         fields: Iterable[str] = DEFAULT_REPLY_FIELDS,
         per_page: int = 25,
         page_limit: Optional[int] = None,
-    ) -> AsyncIterator[Dict[str, Any]]:
+    ) -> RepliesIterator:
         return RepliesIterator(
             transport=self.transport,
             thread_id=thread_id,
@@ -151,7 +152,7 @@ class ThreadsService:
         fields: Iterable[str] = DEFAULT_CONVERSATION_FIELDS,
         per_page: int = 25,
         page_limit: Optional[int] = None,
-    ) -> AsyncIterator[Dict[str, Any]]:
+    ) -> ConversationIterator:
         return ConversationIterator(
             transport=self.transport,
             thread_id=thread_id,

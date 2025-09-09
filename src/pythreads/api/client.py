@@ -11,7 +11,7 @@ import aiohttp
 from pythreads.credentials import Credentials
 from pythreads.threads import Threads, ThreadsAccessTokenExpired
 
-from .errors import ThreadsHTTPError, ThreadsInvalidParameter, ThreadsResponseError
+from .errors import ThreadsHTTPError
 from .types import (
     DEFAULT_ACCOUNT_FIELDS,
     DEFAULT_CONVERSATION_FIELDS,
@@ -23,39 +23,15 @@ from .types import (
     ConversationResponse,
     ContainerResponse,
     ContainerStatus,
-    CreateContainerResponse,
-    Field,
     FollowerDemographicType,
-    FOLLOWER_DEMOGRAPHIC_TYPES,
     InsightsResponse,
     ManageReplyResponse,
     Media,
-    MediaType,
-    PARAMS__AFTER,
-    PARAMS__BEFORE,
-    PARAMS__CHILDREN,
-    PARAMS__FIELDS,
-    PARAMS__HIDE,
-    PARAMS__IMAGE_URL,
-    PARAMS__IS_CAROUSEL_ITEM,
-    PARAMS__LIMIT,
-    PARAMS__MEDIA_TYPE,
-    PARAMS__METRIC,
-    PARAMS__REPLY_CONTROL,
-    PARAMS__REPLY_TO_ID,
-    PARAMS__SINCE,
-    PARAMS__TEXT,
-    PARAMS__UNTIL,
-    PARAMS__VIDEO_URL,
-    PublishContainerResponse,
-    PublishingError,
     PublishingLimitResponse,
-    PublishingStatus,
     RepliesResponse,
     ReplyControl,
-    ThreadResponse,
+    RequestOptions,
     ThreadsListResponse,
-    USER_METRIC_TYPES,
 )
 from .transport import Transport
 from .endpoints.accounts import AccountsService
@@ -223,7 +199,7 @@ class API:
         self,
         user_id: str = "me",
         fields: Sequence[str] = DEFAULT_ACCOUNT_FIELDS,
-        *, request_options: dict | None = None
+        *, request_options: RequestOptions | None = None
     ) -> AccountResponse:
         """Retrieve a Threads user's profile information.
 
@@ -242,7 +218,7 @@ class API:
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
         breakdown: Optional[FollowerDemographicType] = None,
-        *, request_options: dict | None = None
+        *, request_options: RequestOptions | None = None
     ) -> InsightsResponse:
         """Retrieve user-level insights.
 
@@ -260,7 +236,7 @@ class API:
 
     async def publishing_limit(
         self, fields: Sequence[str] = DEFAULT_PUBLISHING_LIMIT_FIELDS,
-        *, request_options: dict | None = None
+        *, request_options: RequestOptions | None = None
     ) -> PublishingLimitResponse:
         """Retrieve current API usage limits and usage for the user.
 
@@ -278,7 +254,7 @@ class API:
         reply_control: ReplyControl = ReplyControl.EVERYONE,
         reply_to_id: Optional[str] = None,
         is_carousel_item: bool = False,
-        *, request_options: dict | None = None
+        *, request_options: RequestOptions | None = None
     ) -> str:
         """Create a media or text container.
 
@@ -306,7 +282,7 @@ class API:
         text: Optional[str] = None,
         reply_control: ReplyControl = ReplyControl.EVERYONE,
         reply_to_id: Optional[str] = None,
-        *, request_options: dict | None = None
+        *, request_options: RequestOptions | None = None
     ) -> str:
         """Create a carousel container from previously finished media containers.
 
@@ -326,7 +302,7 @@ class API:
             request_options=request_options,
         )
 
-    async def container_status(self, media_id: str, *, request_options: dict | None = None) -> ContainerStatus:
+    async def container_status(self, media_id: str, *, request_options: RequestOptions | None = None) -> ContainerStatus:
         """Check a container's publishing status.
 
         Args:
@@ -336,7 +312,7 @@ class API:
         assert self.media_service is not None
         return await self.media_service.container_status(media_id, request_options=request_options)
 
-    async def publish_container(self, container_id: str, *, request_options: dict | None = None) -> str:
+    async def publish_container(self, container_id: str, *, request_options: RequestOptions | None = None) -> str:
         """Publish a previously created container.
 
         Args:
@@ -346,7 +322,7 @@ class API:
         assert self.media_service is not None
         return await self.media_service.publish_container(container_id, request_options=request_options)
 
-    async def container(self, container_id: str, *, request_options: dict | None = None) -> ContainerResponse:
+    async def container(self, container_id: str, *, request_options: RequestOptions | None = None) -> ContainerResponse:
         """Retrieve a container by id.
 
         Args:
@@ -356,7 +332,7 @@ class API:
         assert self.media_service is not None
         return await self.media_service.container(container_id, request_options=request_options)
 
-    async def thread(self, thread_id: str, *, request_options: dict | None = None) -> ThreadResponse:
+    async def thread(self, thread_id: str, *, request_options: RequestOptions | None = None) -> ContainerResponse:
         """Retrieve a single thread (alias of container()).
 
         Args:
@@ -375,7 +351,7 @@ class API:
         limit: Optional[int] = None,
         before: Optional[str] = None,
         after: Optional[str] = None,
-        *, request_options: dict | None = None
+        *, request_options: RequestOptions | None = None
     ) -> ThreadsListResponse:
         """List a user's threads with optional pagination window.
 
@@ -399,7 +375,7 @@ class API:
         )
 
     async def replies(
-        self, thread_id: str, fields: Iterable[str] = DEFAULT_REPLY_FIELDS, *, request_options: dict | None = None
+        self, thread_id: str, fields: Iterable[str] = DEFAULT_REPLY_FIELDS, *, request_options: RequestOptions | None = None
     ) -> RepliesResponse:
         """List replies for a given thread.
 
@@ -417,7 +393,7 @@ class API:
         fields: Iterable[str] = DEFAULT_CONVERSATION_FIELDS,
         before: Optional[str] = None,
         after: Optional[str] = None,
-        *, request_options: dict | None = None
+        *, request_options: RequestOptions | None = None
     ) -> ConversationResponse:
         """Flattened list of top-level and nested replies for a thread.
 
@@ -432,8 +408,8 @@ class API:
             thread_id, fields=fields, before=before, after=after, request_options=request_options
         )
 
-    # Convenience async iterators (expose service iterators)
-    async def threads_iter(
+    # Convenience async iterators (expose service iterators)  
+    def threads_iter(
         self,
         user_id: str | None = None,
         fields: Iterable[str] = DEFAULT_THREAD_FIELDS,
@@ -452,7 +428,7 @@ class API:
             page_limit=page_limit,
         )
 
-    async def replies_iter(
+    def replies_iter(
         self,
         thread_id: str,
         fields: Iterable[str] = DEFAULT_REPLY_FIELDS,
@@ -464,7 +440,7 @@ class API:
             thread_id, fields=fields, per_page=per_page, page_limit=page_limit
         )
 
-    async def conversation_iter(
+    def conversation_iter(
         self,
         thread_id: str,
         fields: Iterable[str] = DEFAULT_CONVERSATION_FIELDS,
@@ -476,7 +452,7 @@ class API:
             thread_id, fields=fields, per_page=per_page, page_limit=page_limit
         )
 
-    async def manage_reply(self, reply_id: str, hide: bool, *, request_options: dict | None = None) -> ManageReplyResponse:
+    async def manage_reply(self, reply_id: str, hide: bool, *, request_options: RequestOptions | None = None) -> ManageReplyResponse:
         """Hide or unhide a top-level reply (and its nested replies).
 
         Args:
@@ -493,7 +469,7 @@ class API:
         metric: Sequence[str] = DEFAULT_METRIC_FIELDS,
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
-        *, request_options: dict | None = None
+        *, request_options: RequestOptions | None = None
     ) -> InsightsResponse:
         """Retrieve media-level insights for a given thread.
 
