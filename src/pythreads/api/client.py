@@ -46,6 +46,8 @@ from .types import (
     ReplyControl,
     USER_METRIC_TYPES,
 )
+from .transport import Transport
+from .endpoints.accounts import AccountsService
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +82,20 @@ class API:
         self.retries = max(0, int(retries))
         self.backoff_base = float(backoff_base)
         self.backoff_max = float(backoff_max)
+        self.transport: Transport | None = None
+        self.accounts: AccountsService | None = None
+        # If a session is provided, wire transport and services immediately
+        if self._session is not None:
+            self.transport = Transport(
+                session=self._session,
+                credentials=self.credentials,
+                timeout=self.timeout,
+                base_url=self.base_url,
+                retries=self.retries,
+                backoff_base=self.backoff_base,
+                backoff_max=self.backoff_max,
+            )
+            self.accounts = AccountsService(self.transport, self.credentials)
 
     @property
     def session(self) -> Optional[aiohttp.ClientSession]:
@@ -102,6 +118,19 @@ class API:
         else:
             self.session = self.external_session
             self.manage_session = False
+        # Wire transport and services
+        sess = self.session
+        assert sess is not None
+        self.transport = Transport(
+            session=sess,
+            credentials=self.credentials,
+            timeout=self.timeout,
+            base_url=self.base_url,
+            retries=self.retries,
+            backoff_base=self.backoff_base,
+            backoff_max=self.backoff_max,
+        )
+        self.accounts = AccountsService(self.transport, self.credentials)
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
@@ -116,6 +145,7 @@ class API:
     def _build_url(
         self, path: str, params: Optional[Dict[str, Any]], access_token: str
     ) -> str:
+        # Keep legacy URL builder for now. New services use Transport._build_url.
         if self.base_url:
             return Threads.build_graph_api_url(path, params or {}, access_token, self.base_url)
         return Threads.build_graph_api_url(path, params or {}, access_token)
@@ -167,9 +197,8 @@ class API:
         user_id: str = "me",
         fields: Sequence[str] = DEFAULT_ACCOUNT_FIELDS,
     ) -> Any:
-        access_token = self._access_token()
-        url = self._build_url(user_id, {PARAMS__FIELDS: ",".join(fields)}, access_token)
-        return await self._get(url)
+        assert self.accounts is not None
+        return await self.accounts.account(user_id=user_id, fields=fields)
 
     async def user_insights(
         self,
@@ -211,14 +240,8 @@ class API:
     async def publishing_limit(
         self, fields: Sequence[str] = DEFAULT_PUBLISHING_LIMIT_FIELDS
     ) -> Any:
-        access_token = self._access_token()
-        user_id = self.credentials.user_id
-        url = self._build_url(
-            f"{user_id}/threads_publishing_limit",
-            {PARAMS__FIELDS: ",".join(fields)},
-            access_token,
-        )
-        return await self._get(url)
+        assert self.accounts is not None
+        return await self.accounts.publishing_limit(fields=fields)
 
     async def create_container(
         self,

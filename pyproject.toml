@@ -47,6 +47,7 @@ dev = [
   # Linting & Types
   "ruff",
   "pyright>=1.1.371",
+  "types-requests",
   # Docs
   "sphinx",
   "furo",
@@ -94,8 +95,8 @@ exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
 [tool.pyright]
 pythonVersion = "3.12"
 typeCheckingMode = "standard"
-include = ["src", "tests"]
-exclude = [".venv", "docs/build", "build", "dist"]
+include = ["src"]
+exclude = [".venv", "docs/build", "build", "dist", "tests"]
 extraPaths = ["src"]
 # Allow Pyright to discover the uv-managed virtual env in ./.venv
 venvPath = "."
