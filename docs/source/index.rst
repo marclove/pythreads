@@ -6,6 +6,7 @@ Welcome to PyThreads' documentation!
    :caption: Contents:
    
    pythreads
+   doctests
    architecture
 
 .. include:: ../../README.md

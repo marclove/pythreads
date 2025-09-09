@@ -70,6 +70,33 @@ Example::
    async with API(credentials, timeout=10, base_url="https://graph.threads.net/", retries=3) as api:
        await api.threads()
 
+Per-Call Overrides
+------------------
+
+You can override options on an individual call with ``request_options``:
+
+.. code-block:: python
+
+   async with API(credentials) as api:
+       # Retry this single call and lower timeout
+       await api.threads(request_options={"retries": 2, "timeout": 10.0})
+
+Common Methods
+--------------
+
+.. code-block:: python
+
+   async with API(credentials) as api:
+       # Get account info
+       await api.account()
+
+       # Create and publish a text-only container
+       cid = await api.create_container(text="Hello Threads!")
+       await api.publish_container(cid)
+
+       # Manage a reply
+       await api.manage_reply("some-reply-id", hide=True)
+
 Configuration Module
 ------------------------------
 
