@@ -49,6 +49,7 @@ from .types import (
 from .transport import Transport
 from .endpoints.accounts import AccountsService
 from .endpoints.threads import ThreadsService
+from .endpoints.media import MediaService
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +86,8 @@ class API:
         self.backoff_max = float(backoff_max)
         self.transport: Transport | None = None
         self.accounts: AccountsService | None = None
+        self.threads_service: ThreadsService | None = None
+        self.media_service: MediaService | None = None
         # If a session is provided, wire transport and services immediately
         if self._session is not None:
             self.transport = Transport(
@@ -98,6 +101,7 @@ class API:
             )
             self.accounts = AccountsService(self.transport, self.credentials)
             self.threads_service = ThreadsService(self.transport, self.credentials)
+            self.media_service = MediaService(self.transport, self.credentials)
 
     @property
     def session(self) -> Optional[aiohttp.ClientSession]:
@@ -134,6 +138,7 @@ class API:
         )
         self.accounts = AccountsService(self.transport, self.credentials)
         self.threads_service = ThreadsService(self.transport, self.credentials)
+        self.media_service = MediaService(self.transport, self.credentials)
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
@@ -254,35 +259,14 @@ class API:
         reply_to_id: Optional[str] = None,
         is_carousel_item: bool = False,
     ) -> str:
-        if self.session is None:
-            raise RuntimeError("an API instance must have a session to handle requests")
-
-        access_token = self._access_token()
-        params: Dict[str, Union[str, bool, List[str], None]] = {
-            PARAMS__REPLY_CONTROL: reply_control.value,
-        }
-        if text:
-            params[PARAMS__TEXT] = text
-            params[PARAMS__MEDIA_TYPE] = MediaType.TEXT.value
-        if reply_to_id:
-            params[PARAMS__REPLY_TO_ID] = reply_to_id
-        if is_carousel_item:
-            params[PARAMS__IS_CAROUSEL_ITEM] = is_carousel_item
-
-        if media and media.type == MediaType.VIDEO:
-            params[PARAMS__MEDIA_TYPE] = media.type.value
-            params[PARAMS__VIDEO_URL] = media and media.url
-        elif media and media.type == MediaType.IMAGE:
-            params[PARAMS__MEDIA_TYPE] = media.type.value
-            params[PARAMS__IMAGE_URL] = media and media.url
-
-        user_id = self.credentials.user_id
-        url = self._build_url(f"{user_id}/threads", params, access_token)
-        async with self.session.post(url) as resp:
-            response = await resp.json()
-            if "id" not in response:
-                raise ThreadsResponseError(response)
-            return response["id"]
+        assert self.media_service is not None
+        return await self.media_service.create_container(
+            text=text,
+            media=media,
+            reply_control=reply_control,
+            reply_to_id=reply_to_id,
+            is_carousel_item=is_carousel_item,
+        )
 
     async def create_carousel_container(
         self,
@@ -291,104 +275,29 @@ class API:
         reply_control: ReplyControl = ReplyControl.EVERYONE,
         reply_to_id: Optional[str] = None,
     ) -> str:
-        if self.session is None:
-            raise RuntimeError("an API instance must have a session to handle requests")
-        access_token = self._access_token()
-
-        num_media = len(containers)
-        if num_media < 2 or num_media > 10:
-            raise ThreadsInvalidParameter("a carousel post requires 2-10 media items")
-        if any([item.status != PublishingStatus.FINISHED for item in containers]):
-            raise ThreadsInvalidParameter(
-                "all published_media must have a status of `FINISHED` before adding them to a carousel container"
-            )
-        child_ids = [item.id for item in containers]
-        children = ",".join(child_ids)
-        params: Dict[str, Union[str, bool, List[str], None]] = {
-            PARAMS__MEDIA_TYPE: MediaType.CAROUSEL.value,
-            PARAMS__CHILDREN: children,
-            PARAMS__REPLY_CONTROL: reply_control.value,
-        }
-        if text:
-            params[PARAMS__TEXT] = text
-        if reply_to_id:
-            params[PARAMS__REPLY_TO_ID] = reply_to_id
-        user_id = self.credentials.user_id
-        url = self._build_url(f"{user_id}/threads", params, access_token)
-        async with self.session.post(url) as resp:
-            response = await resp.json()
-            if "id" not in response:
-                raise ThreadsResponseError(response)
-            return response["id"]
+        assert self.media_service is not None
+        return await self.media_service.create_carousel_container(
+            containers=containers,
+            text=text,
+            reply_control=reply_control,
+            reply_to_id=reply_to_id,
+        )
 
     async def container_status(self, media_id: str) -> ContainerStatus:
-        access_token = self._access_token()
-        url = self._build_url(
-            f"{media_id}",
-            {
-                PARAMS__FIELDS: ",".join(
-                    [
-                        Field.ID,
-                        Field.STATUS,
-                        Field.ERROR_MESSAGE,
-                    ]
-                )
-            },
-            access_token,
-        )
-        result: dict[Any, Any] = await self._get(url)
-        status_str = result.get("status", PublishingStatus.ERROR)
-        status = PublishingStatus[status_str]
-        error = None
-        error_str = result.get("error_message", None)
-        if error_str and error_str != "":
-            error = PublishingError[error_str]
-        media = ContainerStatus(id=result["id"], status=status, error=error)
-        return media
+        assert self.media_service is not None
+        return await self.media_service.container_status(media_id)
 
-    async def publish_container(self, container_id: str) -> Dict[Any, Any]:
-        if self.session is None:
-            raise RuntimeError("an API instance must have a session to handle requests")
-        access_token = self._access_token()
-        user_id = self.credentials.user_id
-        url = self._build_url(
-            f"{user_id}/threads_publish", {"creation_id": container_id}, access_token
-        )
-        async with self.session.post(url) as resp:
-            response = await resp.json()
-            if "id" not in response:
-                raise ThreadsResponseError(response)
-            return response["id"]
+    async def publish_container(self, container_id: str) -> str:
+        assert self.media_service is not None
+        return await self.media_service.publish_container(container_id)
 
     async def container(self, container_id: str):
-        access_token = self._access_token()
-        url = self._build_url(
-            f"{container_id}",
-            {
-                PARAMS__FIELDS: ",".join(
-                    [
-                        Field.CHILDREN,
-                        Field.ID,
-                        Field.IS_QUOTE_POST,
-                        Field.MEDIA_PRODUCT_TYPE,
-                        Field.MEDIA_TYPE,
-                        Field.MEDIA_URL,
-                        Field.OWNER,
-                        Field.PERMALINK,
-                        Field.SHORTCODE,
-                        Field.TEXT,
-                        Field.THUMBNAIL_URL,
-                        Field.TIMESTAMP,
-                        Field.USERNAME,
-                    ]
-                )
-            },
-            access_token,
-        )
-        return await self._get(url)
+        assert self.media_service is not None
+        return await self.media_service.container(container_id)
 
     async def thread(self, thread_id: str):
-        return await self.container(container_id=thread_id)
+        assert self.media_service is not None
+        return await self.media_service.thread(thread_id)
 
     async def threads(
         self,
