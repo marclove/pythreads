@@ -214,6 +214,14 @@ class API:
         fields: Sequence[str] = DEFAULT_ACCOUNT_FIELDS,
         *, request_options: dict | None = None
     ) -> 'AccountResponse':
+        """Retrieve a Threads user's profile information.
+
+        Args:
+            user_id: "me" or a specific user id.
+            fields: Which fields to retrieve.
+            request_options: Optional per-call overrides like {"retries": 2, "timeout": 10.0,
+                "base_url": "https://graph.threads.net/"}.
+        """
         assert self.accounts is not None
         return await self.accounts.account(user_id=user_id, fields=fields, request_options=request_options)
 
@@ -225,6 +233,15 @@ class API:
         breakdown: Optional[FollowerDemographicType] = None,
         *, request_options: dict | None = None
     ) -> 'InsightsResponse':
+        """Retrieve user-level insights.
+
+        Args:
+            metrics: One or more metric names.
+            since: Optional start datetime.
+            until: Optional end datetime.
+            breakdown: Required when requesting follower_demographics.
+            request_options: Optional per-call overrides (retries, timeout, base_url).
+        """
         assert self.insights_service is not None
         return await self.insights_service.user_insights(
             metrics, since=since, until=until, breakdown=breakdown, request_options=request_options
@@ -234,6 +251,12 @@ class API:
         self, fields: Sequence[str] = DEFAULT_PUBLISHING_LIMIT_FIELDS,
         *, request_options: dict | None = None
     ) -> 'PublishingLimitResponse':
+        """Retrieve current API usage limits and usage for the user.
+
+        Args:
+            fields: Which quota fields to include.
+            request_options: Optional per-call overrides (retries, timeout, base_url).
+        """
         assert self.accounts is not None
         return await self.accounts.publishing_limit(fields=fields, request_options=request_options)
 
@@ -246,6 +269,16 @@ class API:
         is_carousel_item: bool = False,
         *, request_options: dict | None = None
     ) -> str:
+        """Create a media or text container.
+
+        Args:
+            text: Optional text for the post.
+            media: Optional Media (IMAGE or VIDEO).
+            reply_control: Who can reply.
+            reply_to_id: Make this a reply to an existing post id.
+            is_carousel_item: Mark container as a child of a carousel.
+            request_options: Optional per-call overrides (retries, timeout, base_url).
+        """
         assert self.media_service is not None
         return await self.media_service.create_container(
             text=text,
@@ -264,6 +297,15 @@ class API:
         reply_to_id: Optional[str] = None,
         *, request_options: dict | None = None
     ) -> str:
+        """Create a carousel container from previously finished media containers.
+
+        Args:
+            containers: 2-10 finished media containers.
+            text: Optional text.
+            reply_control: Who can reply.
+            reply_to_id: Optional parent post id to reply to.
+            request_options: Optional per-call overrides (retries, timeout, base_url).
+        """
         assert self.media_service is not None
         return await self.media_service.create_carousel_container(
             containers=containers,
@@ -274,18 +316,42 @@ class API:
         )
 
     async def container_status(self, media_id: str, *, request_options: dict | None = None) -> ContainerStatus:
+        """Check a container's publishing status.
+
+        Args:
+            media_id: Container id.
+            request_options: Optional per-call overrides.
+        """
         assert self.media_service is not None
         return await self.media_service.container_status(media_id, request_options=request_options)
 
     async def publish_container(self, container_id: str, *, request_options: dict | None = None) -> str:
+        """Publish a previously created container.
+
+        Args:
+            container_id: The container to publish.
+            request_options: Optional per-call overrides.
+        """
         assert self.media_service is not None
         return await self.media_service.publish_container(container_id, request_options=request_options)
 
     async def container(self, container_id: str, *, request_options: dict | None = None):
+        """Retrieve a container by id.
+
+        Args:
+            container_id: Container id to fetch.
+            request_options: Optional per-call overrides.
+        """
         assert self.media_service is not None
         return await self.media_service.container(container_id, request_options=request_options)
 
     async def thread(self, thread_id: str, *, request_options: dict | None = None):
+        """Retrieve a single thread (alias of container()).
+
+        Args:
+            thread_id: Thread (media) id.
+            request_options: Optional per-call overrides.
+        """
         assert self.media_service is not None
         return await self.media_service.thread(thread_id, request_options=request_options)
 
@@ -300,6 +366,15 @@ class API:
         after: Optional[str] = None,
         *, request_options: dict | None = None
     ):
+        """List a user's threads with optional pagination window.
+
+        Args:
+            user_id: Defaults to the authenticated user.
+            fields: Which fields to retrieve.
+            since/until: Optional window constraints (date or ISO str).
+            limit/before/after: Pagination parameters.
+            request_options: Optional per-call overrides (retries, timeout, base_url).
+        """
         assert self.threads_service is not None
         return await self.threads_service.threads(
             user_id=user_id,
@@ -315,6 +390,13 @@ class API:
     async def replies(
         self, thread_id: str, fields: Iterable[str] = DEFAULT_REPLY_FIELDS, *, request_options: dict | None = None
     ):
+        """List replies for a given thread.
+
+        Args:
+            thread_id: Thread id to fetch replies for.
+            fields: Which fields to retrieve.
+            request_options: Optional per-call overrides.
+        """
         assert self.threads_service is not None
         return await self.threads_service.replies(thread_id, fields, request_options=request_options)
 
@@ -326,6 +408,14 @@ class API:
         after: Optional[str] = None,
         *, request_options: dict | None = None
     ):
+        """Flattened list of top-level and nested replies for a thread.
+
+        Args:
+            thread_id: Root thread id.
+            fields: Which fields to retrieve.
+            before/after: Pagination cursors.
+            request_options: Optional per-call overrides.
+        """
         assert self.threads_service is not None
         return await self.threads_service.conversation(
             thread_id, fields=fields, before=before, after=after, request_options=request_options
@@ -376,6 +466,13 @@ class API:
         )
 
     async def manage_reply(self, reply_id: str, hide: bool, *, request_options: dict | None = None):
+        """Hide or unhide a top-level reply (and its nested replies).
+
+        Args:
+            reply_id: Reply id to manage.
+            hide: True to hide, False to unhide.
+            request_options: Optional per-call overrides.
+        """
         assert self.moderation_service is not None
         return await self.moderation_service.manage_reply(reply_id, hide, request_options=request_options)
 
@@ -387,6 +484,14 @@ class API:
         until: Optional[datetime] = None,
         *, request_options: dict | None = None
     ) -> 'InsightsResponse':
+        """Retrieve media-level insights for a given thread.
+
+        Args:
+            thread_id: Thread id to fetch insights for.
+            metric: Which metrics to retrieve (fields parameter).
+            since/until: Optional epoch window in seconds.
+            request_options: Optional per-call overrides.
+        """
         assert self.insights_service is not None
         return await self.insights_service.insights(
             thread_id, metric=metric, since=since, until=until, request_options=request_options
