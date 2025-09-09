@@ -19,10 +19,16 @@ from .types import (
     DEFAULT_PUBLISHING_LIMIT_FIELDS,
     DEFAULT_REPLY_FIELDS,
     DEFAULT_THREAD_FIELDS,
+    AccountResponse,
+    ConversationResponse,
+    ContainerResponse,
     ContainerStatus,
+    CreateContainerResponse,
     Field,
     FollowerDemographicType,
     FOLLOWER_DEMOGRAPHIC_TYPES,
+    InsightsResponse,
+    ManageReplyResponse,
     Media,
     MediaType,
     PARAMS__AFTER,
@@ -41,9 +47,14 @@ from .types import (
     PARAMS__TEXT,
     PARAMS__UNTIL,
     PARAMS__VIDEO_URL,
+    PublishContainerResponse,
     PublishingError,
+    PublishingLimitResponse,
     PublishingStatus,
+    RepliesResponse,
     ReplyControl,
+    ThreadResponse,
+    ThreadsListResponse,
     USER_METRIC_TYPES,
 )
 from .transport import Transport
@@ -213,7 +224,7 @@ class API:
         user_id: str = "me",
         fields: Sequence[str] = DEFAULT_ACCOUNT_FIELDS,
         *, request_options: dict | None = None
-    ) -> 'AccountResponse':
+    ) -> AccountResponse:
         """Retrieve a Threads user's profile information.
 
         Args:
@@ -232,7 +243,7 @@ class API:
         until: Optional[datetime] = None,
         breakdown: Optional[FollowerDemographicType] = None,
         *, request_options: dict | None = None
-    ) -> 'InsightsResponse':
+    ) -> InsightsResponse:
         """Retrieve user-level insights.
 
         Args:
@@ -250,7 +261,7 @@ class API:
     async def publishing_limit(
         self, fields: Sequence[str] = DEFAULT_PUBLISHING_LIMIT_FIELDS,
         *, request_options: dict | None = None
-    ) -> 'PublishingLimitResponse':
+    ) -> PublishingLimitResponse:
         """Retrieve current API usage limits and usage for the user.
 
         Args:
@@ -335,7 +346,7 @@ class API:
         assert self.media_service is not None
         return await self.media_service.publish_container(container_id, request_options=request_options)
 
-    async def container(self, container_id: str, *, request_options: dict | None = None):
+    async def container(self, container_id: str, *, request_options: dict | None = None) -> ContainerResponse:
         """Retrieve a container by id.
 
         Args:
@@ -345,7 +356,7 @@ class API:
         assert self.media_service is not None
         return await self.media_service.container(container_id, request_options=request_options)
 
-    async def thread(self, thread_id: str, *, request_options: dict | None = None):
+    async def thread(self, thread_id: str, *, request_options: dict | None = None) -> ThreadResponse:
         """Retrieve a single thread (alias of container()).
 
         Args:
@@ -365,7 +376,7 @@ class API:
         before: Optional[str] = None,
         after: Optional[str] = None,
         *, request_options: dict | None = None
-    ):
+    ) -> ThreadsListResponse:
         """List a user's threads with optional pagination window.
 
         Args:
@@ -389,7 +400,7 @@ class API:
 
     async def replies(
         self, thread_id: str, fields: Iterable[str] = DEFAULT_REPLY_FIELDS, *, request_options: dict | None = None
-    ):
+    ) -> RepliesResponse:
         """List replies for a given thread.
 
         Args:
@@ -407,7 +418,7 @@ class API:
         before: Optional[str] = None,
         after: Optional[str] = None,
         *, request_options: dict | None = None
-    ):
+    ) -> ConversationResponse:
         """Flattened list of top-level and nested replies for a thread.
 
         Args:
@@ -465,7 +476,7 @@ class API:
             thread_id, fields=fields, per_page=per_page, page_limit=page_limit
         )
 
-    async def manage_reply(self, reply_id: str, hide: bool, *, request_options: dict | None = None):
+    async def manage_reply(self, reply_id: str, hide: bool, *, request_options: dict | None = None) -> ManageReplyResponse:
         """Hide or unhide a top-level reply (and its nested replies).
 
         Args:
@@ -483,7 +494,7 @@ class API:
         since: Optional[datetime] = None,
         until: Optional[datetime] = None,
         *, request_options: dict | None = None
-    ) -> 'InsightsResponse':
+    ) -> InsightsResponse:
         """Retrieve media-level insights for a given thread.
 
         Args:

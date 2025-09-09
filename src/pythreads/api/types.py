@@ -281,3 +281,91 @@ class RequestOptions(TypedDict, total=False):
     backoff_max: float
     base_url: str
     timeout: float
+
+
+# ---------- Additional response types for better type safety ----------
+
+
+class PagingCursors(TypedDict, total=False):
+    before: str
+    after: str
+
+
+class PagingInfo(TypedDict, total=False):
+    cursors: PagingCursors
+    next: str
+    previous: str
+
+
+class OwnerInfo(TypedDict, total=False):
+    id: str
+    username: str
+
+
+class ThreadItem(TypedDict, total=False):
+    id: str
+    text: str
+    username: str
+    permalink: str
+    timestamp: str
+    media_product_type: str
+    media_type: str
+    media_url: str
+    thumbnail_url: str
+    shortcode: str
+    is_quote_post: bool
+    has_replies: bool
+    root_post: Dict[str, Any]
+    replied_to: Dict[str, Any]
+    is_reply: bool
+    is_reply_owned_by_me: bool
+    reply_audience: str
+    children: Dict[str, Any]
+    hide_status: str
+    reply_control: str
+    owner: OwnerInfo
+
+
+class ThreadsListResponse(TypedDict, total=False):
+    data: List[ThreadItem]
+    paging: PagingInfo
+
+
+class ThreadResponse(ThreadItem, total=False):
+    pass
+
+
+class ReplyItem(ThreadItem, total=False):
+    pass
+
+
+class RepliesResponse(TypedDict, total=False):
+    data: List[ReplyItem]
+    paging: PagingInfo
+
+
+class ConversationItem(ThreadItem, total=False):
+    pass
+
+
+class ConversationResponse(TypedDict, total=False):
+    data: List[ConversationItem]
+    paging: PagingInfo
+
+
+class ContainerResponse(TypedDict, total=False):
+    id: str
+    status: str
+    error_message: str
+
+
+class CreateContainerResponse(TypedDict):
+    id: str
+
+
+class PublishContainerResponse(TypedDict):
+    id: str
+
+
+class ManageReplyResponse(TypedDict):
+    success: bool

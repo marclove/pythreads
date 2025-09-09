@@ -7,6 +7,7 @@ from pythreads.credentials import Credentials
 from ..errors import ThreadsInvalidParameter, ThreadsResponseError
 from ..transport import Transport
 from ..types import (
+    ContainerResponse,
     ContainerStatus,
     Field,
     Media,
@@ -23,6 +24,7 @@ from ..types import (
     PublishingError,
     PublishingStatus,
     ReplyControl,
+    ThreadResponse,
 )
 
 
@@ -137,7 +139,7 @@ class MediaService:
             raise ThreadsResponseError(response)
         return response["id"]
 
-    async def container(self, container_id: str, *, request_options: dict | None = None):
+    async def container(self, container_id: str, *, request_options: dict | None = None) -> ContainerResponse:
         return await self.transport.get(
             f"{container_id}",
             {
@@ -161,5 +163,5 @@ class MediaService:
             }, request_options
         )
 
-    async def thread(self, thread_id: str, *, request_options: dict | None = None):
+    async def thread(self, thread_id: str, *, request_options: dict | None = None) -> ThreadResponse:
         return await self.container(container_id=thread_id, request_options=request_options)

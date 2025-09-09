@@ -3,37 +3,21 @@
 # SPDX-License-Identifier: MIT
 
 import json
-import os
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Tuple, Union
 from urllib.parse import urlencode
 
-try:
-    from dotenv import load_dotenv
-except Exception:  # fallback if python-dotenv isn't installed
-    def load_dotenv(*args, **kwargs):  # type: ignore[no-redef]
-        return False
 from requests import Response, get
 from requests_oauthlib import OAuth2Session
 
 from pythreads.configuration import Configuration
 from pythreads.credentials import Credentials
+from pythreads.config import config as global_config
 
-load_dotenv()
-
-THREADS_GRAPH_API_VERSION = os.getenv("THREADS_GRAPH_API_VERSION")
-GRAPH_API_BASE_URL = (
-    f"https://graph.threads.net/{THREADS_GRAPH_API_VERSION}/"
-    if THREADS_GRAPH_API_VERSION
-    else "https://graph.threads.net/"
-)
-
+# Keep backward compatibility
 def get_ssl_credentials() -> tuple[str, str] | None:
-    cert = os.getenv("THREADS_SSL_CERT_FILEPATH", "")
-    key = os.getenv("THREADS_SSL_KEY_FILEPATH", "")
-    if cert and key:
-        return (cert, key)
-    return None
+    """Legacy function for backward compatibility."""
+    return global_config.get_ssl_credentials()
 
 
 class ThreadsAccessTokenExpired(RuntimeError): ...
@@ -110,7 +94,7 @@ class Threads:
     def build_graph_api_url(
         path, params: Union[dict, None] = None, access_token=None, base_url=None
     ):
-        base_url = base_url or GRAPH_API_BASE_URL
+        base_url = base_url or global_config.graph_api_base_url
         full_path = f"{base_url}{path}"
         query_components = []
         if params:
@@ -143,9 +127,9 @@ class Threads:
         api_secret: Optional[str] = None,
         redirect_uri: Optional[str] = None,
     ) -> Configuration:
-        app_id = app_id or os.getenv("THREADS_APP_ID")
-        api_secret = api_secret or os.getenv("THREADS_API_SECRET")
-        redirect_uri = redirect_uri or os.getenv("THREADS_REDIRECT_URI")
+        app_id = app_id or global_config.app_id
+        api_secret = api_secret or global_config.api_secret
+        redirect_uri = redirect_uri or global_config.redirect_uri
 
         if app_id is None:
             raise ValueError("must define an THREADS_APP_ID env variable")
@@ -276,7 +260,7 @@ class Threads:
             "include_client_id": True,
             "client_secret": configuration.api_secret,
         }
-        cert = get_ssl_credentials()
+        cert = global_config.get_ssl_credentials()
         if cert:
             kwargs["cert"] = cert
         response = session.fetch_token(uri, **kwargs)
@@ -317,7 +301,7 @@ class Threads:
             },
             access_token=access_token,
         )
-        cert = get_ssl_credentials()
+        cert = global_config.get_ssl_credentials()
         response = get(uri, cert=cert) if cert else get(uri)
         return Threads.__handle_long_lived_access_token_response(response)
 
@@ -340,7 +324,7 @@ class Threads:
             params={"grant_type": "th_refresh_token"},
             access_token=credentials.access_token,
         )
-        cert = get_ssl_credentials()
+        cert = global_config.get_ssl_credentials()
         response = get(uri, cert=cert) if cert else get(uri)
         return Threads.__handle_long_lived_access_token_response(response)
 

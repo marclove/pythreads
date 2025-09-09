@@ -6,6 +6,7 @@ from typing import Dict, Iterable, Optional, Union, AsyncIterator, Any
 from pythreads.credentials import Credentials
 
 from ..types import (
+    ConversationResponse,
     DEFAULT_CONVERSATION_FIELDS,
     DEFAULT_REPLY_FIELDS,
     DEFAULT_THREAD_FIELDS,
@@ -15,9 +16,47 @@ from ..types import (
     PARAMS__LIMIT,
     PARAMS__SINCE,
     PARAMS__UNTIL,
+    RepliesResponse,
+    ThreadsListResponse,
 )
-from ..utils import iso_date_or_str
+from ..utils import iso_date_or_str, PaginatedIterator
 from ..transport import Transport
+
+
+class ThreadsIterator(PaginatedIterator):
+    """Specialized iterator for user threads with time-based filtering."""
+    
+    def __init__(self, transport, user_id: str, fields: Iterable[str], per_page: int = 25, page_limit: Optional[int] = None, **kwargs):
+        endpoint = f"{user_id}/threads"
+        super().__init__(transport, endpoint, fields, per_page, page_limit, **kwargs)
+    
+    def _build_params(self) -> Dict[str, str]:
+        """Build parameters including time filters."""
+        params = super()._build_params()
+        
+        # Handle time-based parameters specifically
+        if 'since' in self.extra_params and self.extra_params['since']:
+            params[PARAMS__SINCE] = iso_date_or_str(self.extra_params['since'])
+        if 'until' in self.extra_params and self.extra_params['until']:
+            params[PARAMS__UNTIL] = iso_date_or_str(self.extra_params['until'])
+        
+        return params
+
+
+class RepliesIterator(PaginatedIterator):
+    """Specialized iterator for thread replies."""
+    
+    def __init__(self, transport, thread_id: str, fields: Iterable[str], per_page: int = 25, page_limit: Optional[int] = None):
+        endpoint = f"{thread_id}/replies"
+        super().__init__(transport, endpoint, fields, per_page, page_limit)
+
+
+class ConversationIterator(PaginatedIterator):
+    """Specialized iterator for thread conversations."""
+    
+    def __init__(self, transport, thread_id: str, fields: Iterable[str], per_page: int = 25, page_limit: Optional[int] = None):
+        endpoint = f"{thread_id}/conversation"
+        super().__init__(transport, endpoint, fields, per_page, page_limit)
 
 
 class ThreadsService:
@@ -34,7 +73,7 @@ class ThreadsService:
         limit: Optional[int] = None,
         before: Optional[str] = None,
         after: Optional[str] = None,
-        *, request_options: dict | None = None):
+        *, request_options: dict | None = None) -> ThreadsListResponse:
         params: Dict[str, str] = {PARAMS__FIELDS: ",".join(fields)}
         if since:
             params[PARAMS__SINCE] = iso_date_or_str(since)
@@ -50,7 +89,7 @@ class ThreadsService:
         uid = user_id or self.credentials.user_id
         return await self.transport.get(f"{uid}/threads", params, request_options)
 
-    async def replies(self, thread_id: str, fields: Iterable[str] = DEFAULT_REPLY_FIELDS, *, request_options: dict | None = None):
+    async def replies(self, thread_id: str, fields: Iterable[str] = DEFAULT_REPLY_FIELDS, *, request_options: dict | None = None) -> RepliesResponse:
         return await self.transport.get(
             f"{thread_id}/replies", {PARAMS__FIELDS: ",".join(fields)}, request_options
         )
@@ -61,7 +100,7 @@ class ThreadsService:
         fields: Iterable[str] = DEFAULT_CONVERSATION_FIELDS,
         before: Optional[str] = None,
         after: Optional[str] = None,
-        *, request_options: dict | None = None):
+        *, request_options: dict | None = None) -> ConversationResponse:
         params: Dict[str, str] = {PARAMS__FIELDS: ",".join(fields)}
         if before:
             params[PARAMS__BEFORE] = before
@@ -71,7 +110,7 @@ class ThreadsService:
 
     # ---------------------- Iterators (convenience) ----------------------
 
-    async def threads_iter(
+    def threads_iter(
         self,
         user_id: str | None = None,
         fields: Iterable[str] = DEFAULT_THREAD_FIELDS,
@@ -80,69 +119,43 @@ class ThreadsService:
         per_page: int = 25,
         page_limit: Optional[int] = None,
     ) -> AsyncIterator[Dict[str, Any]]:
-        pages = 0
-        after: Optional[str] = None
-        while True:
-            params: Dict[str, str] = {PARAMS__FIELDS: ",".join(fields), PARAMS__LIMIT: str(per_page)}
-            if since:
-                params[PARAMS__SINCE] = iso_date_or_str(since)
-            if until:
-                params[PARAMS__UNTIL] = iso_date_or_str(until)
-            if after:
-                params[PARAMS__AFTER] = after
-            uid = user_id or self.credentials.user_id
-            resp = await self.transport.get(f"{uid}/threads", params)
-            for item in resp.get("data", []):
-                yield item
-            pages += 1
-            if page_limit is not None and pages >= page_limit:
-                break
-            after = resp.get("paging", {}).get("cursors", {}).get("after")
-            if not after:
-                break
+        uid = user_id or self.credentials.user_id
+        return ThreadsIterator(
+            transport=self.transport,
+            user_id=uid,
+            fields=fields,
+            per_page=per_page,
+            page_limit=page_limit,
+            since=since,
+            until=until
+        )
 
-    async def replies_iter(
+    def replies_iter(
         self,
         thread_id: str,
         fields: Iterable[str] = DEFAULT_REPLY_FIELDS,
         per_page: int = 25,
         page_limit: Optional[int] = None,
     ) -> AsyncIterator[Dict[str, Any]]:
-        pages = 0
-        after: Optional[str] = None
-        while True:
-            params: Dict[str, str] = {PARAMS__FIELDS: ",".join(fields), PARAMS__LIMIT: str(per_page)}
-            if after:
-                params[PARAMS__AFTER] = after
-            resp = await self.transport.get(f"{thread_id}/replies", params)
-            for item in resp.get("data", []):
-                yield item
-            pages += 1
-            if page_limit is not None and pages >= page_limit:
-                break
-            after = resp.get("paging", {}).get("cursors", {}).get("after")
-            if not after:
-                break
+        return RepliesIterator(
+            transport=self.transport,
+            thread_id=thread_id,
+            fields=fields,
+            per_page=per_page,
+            page_limit=page_limit
+        )
 
-    async def conversation_iter(
+    def conversation_iter(
         self,
         thread_id: str,
         fields: Iterable[str] = DEFAULT_CONVERSATION_FIELDS,
         per_page: int = 25,
         page_limit: Optional[int] = None,
     ) -> AsyncIterator[Dict[str, Any]]:
-        pages = 0
-        after: Optional[str] = None
-        while True:
-            params: Dict[str, str] = {PARAMS__FIELDS: ",".join(fields), PARAMS__LIMIT: str(per_page)}
-            if after:
-                params[PARAMS__AFTER] = after
-            resp = await self.transport.get(f"{thread_id}/conversation", params)
-            for item in resp.get("data", []):
-                yield item
-            pages += 1
-            if page_limit is not None and pages >= page_limit:
-                break
-            after = resp.get("paging", {}).get("cursors", {}).get("after")
-            if not after:
-                break
+        return ConversationIterator(
+            transport=self.transport,
+            thread_id=thread_id,
+            fields=fields,
+            per_page=per_page,
+            page_limit=page_limit
+        )
