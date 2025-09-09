@@ -21,8 +21,8 @@ jobs:
         uses: astral-sh/setup-uv@v4
       - name: Pin Python
         run: uv python pin ${{ matrix.python-version }}
-      - name: Sync dependencies (dev)
-        run: uv sync --dev
+      - name: Sync dependencies (dev + extras)
+        run: uv sync --extra dev
       - name: Lint (ruff)
         run: uv run ruff check --fix .
       - name: Type check (pyright)
