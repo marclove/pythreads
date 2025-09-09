@@ -23,6 +23,7 @@ follows [Semantic Versioning](https://semver.org/).
 - [Authentication & Authorization](#authentication--authorization)
 - [Making Requests](#making-requests)
 - [API Methods](#api-methods)
+- [Development](#development)
 - [Roadmap](#roadmap)
 - [License](#license)
 
@@ -272,3 +273,16 @@ process:
 ## License
 
 `pythreads` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
+
+## Development
+
+Use uv for a fast, reproducible workflow:
+
+- Setup: `uv sync --dev`
+- Lint and types: `uv run ruff check --fix .` and `uv run pyright .`
+- Unit tests (no network): `CI=1 uv run pytest -m "not smoke"`
+- Docs: `uv run sphinx-build -b html docs/source docs/build/html`
+
+Notes:
+- The `API` client uses a default 30s timeout and raises `ThreadsHTTPError` on non-2xx HTTP responses.
+- You can override defaults via `API(credentials, timeout=10, base_url="https://graph.threads.net/")`.

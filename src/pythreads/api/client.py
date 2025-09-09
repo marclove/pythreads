@@ -50,12 +50,19 @@ logger = logging.getLogger(__name__)
 
 class API:
     def __init__(
-        self, credentials: Credentials, session: Optional[aiohttp.ClientSession] = None
+        self,
+        credentials: Credentials,
+        session: Optional[aiohttp.ClientSession] = None,
+        *,
+        timeout: Optional[Union[float, aiohttp.ClientTimeout]] = 30,
+        base_url: Optional[str] = None,
     ) -> None:
         self.credentials = credentials
         self.external_session = session
         self._session = session
         self.manage_session: bool = False
+        self.timeout = timeout
+        self.base_url = base_url
 
     @property
     def session(self) -> Optional[aiohttp.ClientSession]:
@@ -67,7 +74,12 @@ class API:
 
     async def __aenter__(self) -> "API":
         if not self.external_session:
-            timeout = aiohttp.ClientTimeout(total=30)
+            if isinstance(self.timeout, (int, float)) and self.timeout:
+                timeout = aiohttp.ClientTimeout(total=float(self.timeout))
+            elif isinstance(self.timeout, aiohttp.ClientTimeout):
+                timeout = self.timeout
+            else:
+                timeout = aiohttp.ClientTimeout(total=30)
             self.session = aiohttp.ClientSession(timeout=timeout)
             self.manage_session = True
         else:
@@ -83,6 +95,13 @@ class API:
         if self.credentials.expired():
             raise ThreadsAccessTokenExpired()
         return self.credentials.access_token
+
+    def _build_url(
+        self, path: str, params: Optional[Dict[str, Any]], access_token: str
+    ) -> str:
+        if self.base_url:
+            return Threads.build_graph_api_url(path, params or {}, access_token, self.base_url)
+        return Threads.build_graph_api_url(path, params or {}, access_token)
 
     async def _request(self, method: str, url: str) -> Any:
         if self.session is None:
@@ -114,11 +133,7 @@ class API:
         fields: Sequence[str] = DEFAULT_ACCOUNT_FIELDS,
     ) -> Any:
         access_token = self._access_token()
-        url = Threads.build_graph_api_url(
-            user_id,
-            {PARAMS__FIELDS: ",".join(fields)},
-            access_token,
-        )
+        url = self._build_url(user_id, {PARAMS__FIELDS: ",".join(fields)}, access_token)
         return await self._get(url)
 
     async def user_insights(
@@ -155,9 +170,7 @@ class API:
             params["breakdown"] = breakdown
 
         user_id = self.credentials.user_id
-        url = Threads.build_graph_api_url(
-            f"{user_id}/threads_insights", params, access_token
-        )
+        url = self._build_url(f"{user_id}/threads_insights", params, access_token)
         return await self._get(url)
 
     async def publishing_limit(
@@ -165,7 +178,7 @@ class API:
     ) -> Any:
         access_token = self._access_token()
         user_id = self.credentials.user_id
-        url = Threads.build_graph_api_url(
+        url = self._build_url(
             f"{user_id}/threads_publishing_limit",
             {PARAMS__FIELDS: ",".join(fields)},
             access_token,
@@ -203,7 +216,7 @@ class API:
             params[PARAMS__IMAGE_URL] = media and media.url
 
         user_id = self.credentials.user_id
-        url = Threads.build_graph_api_url(f"{user_id}/threads", params, access_token)
+        url = self._build_url(f"{user_id}/threads", params, access_token)
         async with self.session.post(url) as resp:
             response = await resp.json()
             if "id" not in response:
@@ -240,7 +253,7 @@ class API:
         if reply_to_id:
             params[PARAMS__REPLY_TO_ID] = reply_to_id
         user_id = self.credentials.user_id
-        url = Threads.build_graph_api_url(f"{user_id}/threads", params, access_token)
+        url = self._build_url(f"{user_id}/threads", params, access_token)
         async with self.session.post(url) as resp:
             response = await resp.json()
             if "id" not in response:
@@ -249,7 +262,7 @@ class API:
 
     async def container_status(self, media_id: str) -> ContainerStatus:
         access_token = self._access_token()
-        url = Threads.build_graph_api_url(
+        url = self._build_url(
             f"{media_id}",
             {
                 PARAMS__FIELDS: ",".join(
@@ -277,10 +290,8 @@ class API:
             raise RuntimeError("an API instance must have a session to handle requests")
         access_token = self._access_token()
         user_id = self.credentials.user_id
-        url = Threads.build_graph_api_url(
-            f"{user_id}/threads_publish",
-            {"creation_id": container_id},
-            access_token,
+        url = self._build_url(
+            f"{user_id}/threads_publish", {"creation_id": container_id}, access_token
         )
         async with self.session.post(url) as resp:
             response = await resp.json()
@@ -290,7 +301,7 @@ class API:
 
     async def container(self, container_id: str):
         access_token = self._access_token()
-        url = Threads.build_graph_api_url(
+        url = self._build_url(
             f"{container_id}",
             {
                 PARAMS__FIELDS: ",".join(
@@ -341,17 +352,15 @@ class API:
         if after:
             params[PARAMS__AFTER] = after
         user_id = user_id or self.credentials.user_id
-        url = Threads.build_graph_api_url(f"{user_id}/threads", params, access_token)
+        url = self._build_url(f"{user_id}/threads", params, access_token)
         return await self._get(url)
 
     async def replies(
         self, thread_id: str, fields: Iterable[str] = DEFAULT_REPLY_FIELDS
     ):
         access_token = self._access_token()
-        url = Threads.build_graph_api_url(
-            f"{thread_id}/replies",
-            {PARAMS__FIELDS: ",".join(fields)},
-            access_token,
+        url = self._build_url(
+            f"{thread_id}/replies", {PARAMS__FIELDS: ",".join(fields)}, access_token
         )
         return await self._get(url)
 
@@ -368,17 +377,13 @@ class API:
             params[PARAMS__BEFORE] = before
         if after:
             params[PARAMS__AFTER] = after
-        url = Threads.build_graph_api_url(
-            f"{thread_id}/conversation", params, access_token
-        )
+        url = self._build_url(f"{thread_id}/conversation", params, access_token)
         return await self._get(url)
 
     async def manage_reply(self, reply_id: str, hide: bool):
         access_token = self._access_token()
         params = {PARAMS__HIDE: hide}
-        url = Threads.build_graph_api_url(
-            f"{reply_id}/manage_reply", params, access_token
-        )
+        url = self._build_url(f"{reply_id}/manage_reply", params, access_token)
         return await self._post(url)
 
     async def insights(
@@ -394,9 +399,5 @@ class API:
             params["since"] = str(int(since.timestamp()))
         if until:
             params["until"] = str(int(until.timestamp()))
-        url = Threads.build_graph_api_url(
-            f"{thread_id}/insights",
-            params,
-            access_token,
-        )
+        url = self._build_url(f"{thread_id}/insights", params, access_token)
         return await self._get(url)

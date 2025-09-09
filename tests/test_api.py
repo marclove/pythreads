@@ -813,6 +813,27 @@ class APITest(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(ThreadsHTTPError):
             await self.api.manage_reply("someid", hide=True)
 
+    @patch("aiohttp.ClientSession.get")
+    @patch("pythreads.api.Threads.build_graph_api_url")
+    async def test_get_threads_http_error_with_text_body(
+        self, mock_build_graph_api_url, mock_get
+    ):
+        mock_build_graph_api_url.return_value = "https://some-uri.com"
+
+        async def json_raiser():
+            raise ValueError("not json")
+
+        mock_resp = MagicMock()
+        mock_resp.json = AsyncMock(side_effect=json_raiser)
+        mock_resp.text = AsyncMock(return_value="plain error body")
+        mock_resp.status = 502
+        mock_get.side_effect = [
+            MagicMock(__aenter__=AsyncMock(return_value=mock_resp)),
+        ]
+
+        with self.assertRaises(ThreadsHTTPError):
+            await self.api.threads()
+
     async def test_publish_container_with_expired_credentials(self):
         with self.assertRaises(ThreadsAccessTokenExpired):
             await self.api_with_expired_credentials.publish_container("1")
